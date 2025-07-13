@@ -1,0 +1,4 @@
+embedding_model: openai
+vector_dim: 1536
+llm_model: gpt-4o-mini
+chunk_size: 100
