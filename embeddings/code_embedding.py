@@ -1,4 +1,4 @@
-from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_ollama import OllamaEmbeddings
 
 
 def get_embedding_model():
