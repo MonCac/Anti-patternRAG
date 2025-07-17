@@ -1,38 +1,40 @@
-from langchain_community.vectorstores import FAISS
-from langchain_community.chat_models import ChatOpenAI
-from langchain.chains import RetrievalQA
 from langchain.schema import Document
-from splitter.case_splitter import simple_text_splitter, split_into_chunks
-from embeddings.code_embedding import get_embedding_model
-from retriever.retriever_wrapper import MyRetriever
+from embeddings.vector_store import save_embeddings
+from splitter.case_splitter import split_into_chunks
+from embeddings.code_embedding import get_embedding_model, embed_chunk
+from config.settings import DATA_DIR
 
 
-def build_basic_rag_chain():
-
+def build_basic_rag_chain(query):
+    data_dir = DATA_DIR
     # 1. 读取数据并分块
     docs = []
-    chunks = split_into_chunks("/Users/moncheri/Downloads/main/重构/反模式修复数据集构建/RefactorRAG/Anti-PatternRAG/data/doc.md")
+    print(f"data_dir: {data_dir}，DATA_DIR:{DATA_DIR}")
+    chunks = split_into_chunks(data_dir)
     for i, chunk in enumerate(chunks):
         print(f"[{i}] {chunk}\n")
         docs.append(Document(page_content=chunk, metadata={"source_id": f"chunk_{i}"}))
 
+    docs = [doc.page_content for doc in docs]
     # 2. 嵌入模型
-    embedding_model = get_embedding_model()
+    embed = get_embedding_model()
+    # 循环使用 ollama 对单文本 embedding 的函数
+    embeddings = [embed_chunk(embed, chunk) for chunk in docs]
+    # 直接使用 ollama 内置对列表进行 embedding 的函数
+    # embeddings = embed.embed_documents(docs)
+    print("embeddings[0]: ", embeddings[0])
+    print("len: embeddings: ", len(embeddings))
+    print("len: embeddings[0]: ", len(embeddings[0]))
 
-    # 3. 向量库（FAISS）
-    vectorstore = FAISS.from_documents(docs, embedding_model)
-
+    # 3. 向量库（Chromadb）
+    chromadb_collection = save_embeddings(docs, embeddings)
     # 4. 自定义检索器包装（方便后续扩展）
-    retriever = MyRetriever(vectorstore)
-
-    # 5. LLM
-    llm = ChatOpenAI(temperature=0)
-
-    # 6. RAG Chain
-    rag_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        retriever=retriever,
-        return_source_documents=True
+    query_embedding = embed_chunk(embed, query)
+    results = chromadb_collection.query(
+        query_embeddings=[query_embedding],
+        n_results=4
     )
+    result = results['documents'][0]
 
-    return rag_chain
+    for i, chunk in enumerate(result):
+        print(f"[{i}] {chunk}\n")

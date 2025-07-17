@@ -3,3 +3,6 @@ openai
 faiss-cpu
 langchain_ollama>=0.3.4
 langchain-core>=0.3.69
+langchain_community
+langchain_chroma
+chromadb
