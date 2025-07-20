@@ -4,7 +4,8 @@ import warnings
 from tree_sitter import Language, Parser
 from typing import Optional
 
-from ast_chunk_schema import ASTChunk, ASTChunkType
+from ast_chunk_schema import ASTChunk
+from splitter.ch_ast_splitter.base_chunk import ChunkType
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -44,7 +45,7 @@ def get_node_by_line_range(root_node, start_line: int, end_line: int):
     return min(candidates, key=lambda n: (n.end_point[0] - n.start_point[0]))
 
 
-def extract_ast_chunk(code: str, file_path: str, chunk_type: ASTChunkType,
+def extract_ast_chunk(code: str, file_path: str, chunk_type: ChunkType,
                       start_line: Optional[int] = None, end_line: Optional[int] = None) -> ASTChunk:
     tree = parser.parse(bytes(code, "utf8"))
     root_node = tree.root_node
@@ -68,17 +69,17 @@ def extract_superclass_chunks(code: str, file_path: str,
     if parent_loc:
         start_line, end_line = parent_loc
         chunks.append(
-            extract_ast_chunk(code, file_path, ASTChunkType.PARENT_METHOD, start_line, end_line)
+            extract_ast_chunk(code, file_path, ChunkType.PARENT_METHOD, start_line, end_line)
         )
 
     if invocation_loc:
         start_line, end_line = invocation_loc
         chunks.append(
-            extract_ast_chunk(code, file_path, ASTChunkType.PARENT_CALL_CHILD, start_line, end_line)
+            extract_ast_chunk(code, file_path, ChunkType.PARENT_CALL_CHILD, start_line, end_line)
         )
     # 整体结构
     chunks.append(
-        extract_ast_chunk(code, file_path, ASTChunkType.PARENT_FILE_STRUCTURE)
+        extract_ast_chunk(code, file_path, ChunkType.PARENT_FILE_STRUCTURE)
     )
     return chunks
 
@@ -89,10 +90,10 @@ def extract_subclass_chunks(code: str, file_path: str,
     if method_loc:
         start_line, end_line = method_loc
         chunks.append(
-            extract_ast_chunk(code, file_path, ASTChunkType.CHILD_METHOD, start_line, end_line)
+            extract_ast_chunk(code, file_path, ChunkType.CHILD_METHOD, start_line, end_line)
         )
     # 整体结构
     chunks.append(
-        extract_ast_chunk(code, file_path, ASTChunkType.CHILD_FILE_STRUCTURE)
+        extract_ast_chunk(code, file_path, ChunkType.CHILD_FILE_STRUCTURE)
     )
     return chunks

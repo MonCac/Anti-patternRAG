@@ -1,17 +1,7 @@
 from dataclasses import dataclass
-from enum import Enum
-
-
-class ASTChunkType(Enum):
-    PARENT_METHOD = "parent_method"
-    PARENT_CALL_CHILD = "parent_call_child"
-    CHILD_METHOD = "child_method"
-    PARENT_FILE_STRUCTURE = "parent_file_structure"
-    CHILD_FILE_STRUCTURE = "child_file_structure"
+from splitter.ch_ast_splitter.base_chunk import BaseChunk
 
 
 @dataclass
-class ASTChunk:
-    file_path: str
-    chunk_type: ASTChunkType
+class ASTChunk(BaseChunk):
     ast_subtree: str

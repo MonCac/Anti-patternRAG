@@ -4,13 +4,14 @@ from typing import List, Union
 
 from ast_chunk_schema import ASTChunk
 from splitter.ch_ast_splitter.ast_extractor import extract_superclass_chunks, extract_subclass_chunks
+from splitter.ch_ast_splitter.base_chunk import BaseChunk
 from splitter.ch_ast_splitter.json_processor import load_case_info
-from splitter.ch_ast_splitter.llm_placeholder import mock_llm_analyze_superclass, mock_llm_analyze_subclass
 from config.settings import DATA_DIR
+from splitter.ch_ast_splitter.llm_chunk_analyzer import llm_analyze_superclass, llm_analyze_subclass
 from splitter.utils import parse_line_range
 
 
-def split_ch_case_into_chunks(base_dir: Union[str, Path]) -> List[ASTChunk]:
+def split_ch_case_into_chunks(base_dir: Union[str, Path]) -> List[BaseChunk]:
     """
     主函数：从一个 CH 案例文件夹中自动定位 JSON 和 Java 文件，抽取 AST 和分析块
     :param base_dir: 指向某个具体 `{id}` 案例文件夹（包含 before/ 与 .json）
@@ -42,16 +43,23 @@ def split_ch_case_into_chunks(base_dir: Union[str, Path]) -> List[ASTChunk]:
     # 提取位置信息（仅使用第一个调用）
     snippet = case.code_snippets[0]
     parent_method_loc = parse_line_range(snippet.parent_method.location)
-    invocation_loc = parse_line_range(snippet.invocation.location)
     child_method_loc = parse_line_range(snippet.child_method.location)
+    invocation_loc = parse_line_range(snippet.invocation.location)
+
+    # 提取代码片段
+    parent_method_code = snippet.parent_method.code
+    child_method_code = snippet.child_method.code
+    invocation_code = snippet.invocation.code
 
     # ---- SuperClass 的子块 ----
+    super_chunks: List[BaseChunk] = []
     super_chunks = extract_superclass_chunks(super_code, super_path, parent_method_loc, invocation_loc)
-    super_chunks.append(mock_llm_analyze_superclass(super_code, super_path))
+    super_chunks.extend(llm_analyze_superclass(super_path, parent_method_code, invocation_code))
 
     # ---- SubClass 的子块 ----
+    sub_chunks: List[BaseChunk] = []
     sub_chunks = extract_subclass_chunks(sub_code, sub_path, child_method_loc)
-    # sub_chunks.append(mock_llm_analyze_subclass(sub_code, sub_path))
+    sub_chunks.extend(llm_analyze_subclass(sub_path, child_method_code))
 
     # ---- 整合所有 chunk ----
     all_chunks = super_chunks + sub_chunks

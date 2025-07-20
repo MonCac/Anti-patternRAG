@@ -1,5 +1,6 @@
 import os
 import shutil
+from pathlib import Path
 
 
 def copy_repaired_files(source_root, destination_root):
@@ -76,6 +77,27 @@ def copy_repaired_files(source_root, destination_root):
             print(f"[处理完成] {commit_path}")
 
     print("✅ 所有文件处理完毕。")
+
+
+def read_code_from_file(file_path: str) -> str:
+    """
+    从给定路径读取源码文件内容。
+
+    Args:
+        file_path: 源码文件的绝对路径。
+
+    Returns:
+        文件内容字符串。
+
+    Raises:
+        FileNotFoundError: 如果文件不存在。
+        UnicodeDecodeError: 如果文件编码错误。
+    """
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"文件不存在: {file_path}")
+
+    return path.read_text(encoding="utf-8")
 
 
 if __name__ == "__main__":

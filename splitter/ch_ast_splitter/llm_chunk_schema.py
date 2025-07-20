@@ -1,17 +1,8 @@
 from dataclasses import dataclass
-from enum import Enum
 
-
-class LLMChunkType(Enum):
-    PARENT_FILE_SUMMARY = "parent_file_summary"
-    PARENT_METHOD_SUMMARY = "parent_method_summary"
-    INVOCATION_SUMMARY = "invocation_summary"
-    CHILD_FILE_SUMMARY = "child_file_summary"
-    CHILD_METHOD_SUMMARY = "child_method_summary"
+from splitter.ch_ast_splitter.base_chunk import BaseChunk
 
 
 @dataclass
-class LLMChunk:
-    file_path: str
-    chunk_type: LLMChunkType
+class LLMChunk(BaseChunk):
     llm_description: str  # 实际是自然语言描述
