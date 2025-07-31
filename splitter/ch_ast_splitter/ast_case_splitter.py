@@ -11,7 +11,7 @@ from splitter.ch_ast_splitter.llm_chunk_analyzer import llm_analyze_superclass, 
 from splitter.utils import parse_line_range
 
 
-def split_ch_case_into_chunks(base_dir: Union[str, Path]) -> List[BaseChunk]:
+def split_ch_case_into_chunks(base_dir: Union[str, Path], group_id) -> List[BaseChunk]:
     """
     主函数：从一个 CH 案例文件夹中自动定位 JSON 和 Java 文件，抽取 AST 和分析块
     :param base_dir: 指向某个具体 `{id}` 案例文件夹（包含 before/ 与 .json）
@@ -53,13 +53,13 @@ def split_ch_case_into_chunks(base_dir: Union[str, Path]) -> List[BaseChunk]:
 
     # ---- SuperClass 的子块 ----
     super_chunks: List[BaseChunk] = []
-    super_chunks = extract_superclass_chunks(super_code, super_path, parent_method_loc, invocation_loc)
-    super_chunks.extend(llm_analyze_superclass(super_path, parent_method_code, invocation_code))
+    super_chunks = extract_superclass_chunks(super_code, super_path, group_id, parent_method_loc, invocation_loc)
+    super_chunks.extend(llm_analyze_superclass(super_path, parent_method_code, group_id, invocation_code))
 
     # ---- SubClass 的子块 ----
     sub_chunks: List[BaseChunk] = []
-    sub_chunks = extract_subclass_chunks(sub_code, sub_path, child_method_loc)
-    sub_chunks.extend(llm_analyze_subclass(sub_path, child_method_code))
+    sub_chunks = extract_subclass_chunks(sub_code, sub_path, group_id, child_method_loc)
+    sub_chunks.extend(llm_analyze_subclass(sub_path, group_id, child_method_code))
 
     # ---- 整合所有 chunk ----
     all_chunks = super_chunks + sub_chunks

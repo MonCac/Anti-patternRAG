@@ -21,4 +21,4 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    split_ch_case_into_chunks(Path(DATA_DIR) / "kafka" / "commit_1000" / "6")
+    split_ch_case_into_chunks(Path(DATA_DIR) / "kafka" / "commit_1000" / "6", 0)
