@@ -45,7 +45,7 @@ def get_node_by_line_range(root_node, start_line: int, end_line: int):
     return min(candidates, key=lambda n: (n.end_point[0] - n.start_point[0]))
 
 
-def extract_ast_chunk(code: str, file_path: str, chunk_type: ChunkType, group_id: int,
+def extract_ast_chunk(code: str, file_path: str, chunk_type: ChunkType,
                       start_line: Optional[int] = None, end_line: Optional[int] = None) -> ASTChunk:
     tree = parser.parse(bytes(code, "utf8"))
     root_node = tree.root_node
@@ -58,45 +58,44 @@ def extract_ast_chunk(code: str, file_path: str, chunk_type: ChunkType, group_id
     return ASTChunk(
         file_path=file_path,
         chunk_type=chunk_type,
-        group_id=group_id,
         level=3,
         chunk_id=chunk_type.value,
         ast_subtree=node.sexp() # 使用 S-expression 结构作为语法表示
     )
 
 
-def extract_superclass_chunks(code: str, file_path: str, group_id: int,
+def extract_superclass_chunks(code: str, file_path: str,
                               parent_loc: Optional[tuple] = None,
                               invocation_loc: Optional[tuple] = None) -> list[ASTChunk]:
     chunks = []
     if parent_loc:
         start_line, end_line = parent_loc
         chunks.append(
-            extract_ast_chunk(code, file_path, ChunkType.PARENT_METHOD, group_id, start_line, end_line)
+            extract_ast_chunk(code, file_path, ChunkType.PARENT_METHOD, start_line, end_line)
         )
 
     if invocation_loc:
         start_line, end_line = invocation_loc
         chunks.append(
-            extract_ast_chunk(code, file_path, ChunkType.PARENT_CALL_CHILD, group_id, start_line, end_line)
+            extract_ast_chunk(code, file_path, ChunkType.PARENT_CALL_CHILD, start_line, end_line)
         )
     # 整体结构
     chunks.append(
-        extract_ast_chunk(code, file_path, ChunkType.PARENT_FILE_STRUCTURE, group_id)
+        extract_ast_chunk(code, file_path, ChunkType.PARENT_FILE_STRUCTURE)
     )
     return chunks
 
 
-def extract_subclass_chunks(code: str, file_path: str, group_id: int,
+def extract_subclass_chunks(code: str, file_path: str,
                             method_loc: Optional[tuple] = None) -> list[ASTChunk]:
     chunks = []
     if method_loc:
         start_line, end_line = method_loc
         chunks.append(
-            extract_ast_chunk(code, file_path, ChunkType.CHILD_METHOD, group_id, start_line, end_line)
+            extract_ast_chunk(code, file_path, ChunkType.CHILD_METHOD, start_line, end_line)
         )
     # 整体结构
     chunks.append(
-        extract_ast_chunk(code, file_path, ChunkType.CHILD_FILE_STRUCTURE, group_id)
+        extract_ast_chunk(code, file_path, ChunkType.CHILD_FILE_STRUCTURE)
     )
     return chunks

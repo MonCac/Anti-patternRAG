@@ -2,7 +2,7 @@ import json
 import os
 from dataclasses import asdict
 from pathlib import Path
-from typing import List, Union
+from typing import List, Union, Any
 from splitter.ch_ast_splitter.ast_extractor import extract_superclass_chunks, extract_subclass_chunks
 from splitter.ch_ast_splitter.base_chunk_schema import BaseChunk
 from splitter.ch_ast_splitter.json_processor import load_case_info
@@ -11,13 +11,18 @@ from splitter.ch_ast_splitter.llm_chunk_analyzer import llm_analyze_superclass, 
 from splitter.utils import parse_line_range
 
 
-def split_ch_case_into_chunks(base_dir: Union[str, Path], group_id) -> List[BaseChunk]:
+def split_ch_case_into_chunks(base_dir: Union[str, Path], group_id) -> dict[str, Union[str, list, Any]]:
     """
     主函数：从一个 CH 案例文件夹中自动定位 JSON 和 Java 文件，抽取 AST 和分析块
     :param base_dir: 指向某个具体 `{id}` 案例文件夹（包含 before/ 与 .json）
-    :return: List[ASTChunk]，每个父子子子块
+    :param group_id:
+    :dict[str, Union[str, list, Any]]，每个父子子子块
     """
     base_dir = Path(base_dir)
+
+    # 提取路径倒数四级
+    parts = base_dir.parts[-4:]  # 获取倒数4个路径名
+    antipattern_type, project_name, commit_number, case_id = parts
 
     # 找到 JSON 文件（一个案例文件夹应该只有一个 .json）
     json_files = list(base_dir.glob("*.json"))
@@ -53,13 +58,13 @@ def split_ch_case_into_chunks(base_dir: Union[str, Path], group_id) -> List[Base
 
     # ---- SuperClass 的子块 ----
     super_chunks: List[BaseChunk] = []
-    super_chunks = extract_superclass_chunks(super_code, super_path, group_id, parent_method_loc, invocation_loc)
-    super_chunks.extend(llm_analyze_superclass(super_path, parent_method_code, group_id, invocation_code))
+    super_chunks = extract_superclass_chunks(super_code, super_path, parent_method_loc, invocation_loc)
+    super_chunks.extend(llm_analyze_superclass(super_path, parent_method_code, invocation_code))
 
     # ---- SubClass 的子块 ----
     sub_chunks: List[BaseChunk] = []
-    sub_chunks = extract_subclass_chunks(sub_code, sub_path, group_id, child_method_loc)
-    sub_chunks.extend(llm_analyze_subclass(sub_path, group_id, child_method_code))
+    sub_chunks = extract_subclass_chunks(sub_code, sub_path, child_method_loc)
+    sub_chunks.extend(llm_analyze_subclass(sub_path, child_method_code))
 
     # ---- 整合所有 chunk ----
     all_chunks = super_chunks + sub_chunks
@@ -67,11 +72,20 @@ def split_ch_case_into_chunks(base_dir: Union[str, Path], group_id) -> List[Base
 
     json_chunks = [chunk.to_dict() for chunk in all_chunks]
 
+    result = {
+        "antipattern_type": antipattern_type,
+        "project_name": project_name,
+        "commit_number": commit_number,
+        "id": case_id,
+        "group_id": group_id,
+        "chunks": json_chunks
+    }
+
     with open("chunks.json", "w", encoding="utf-8") as f:
-        json.dump(json_chunks, f, ensure_ascii=False, indent=2)
+        json.dump(result, f, ensure_ascii=False, indent=2)
 
     print("存储成功")
-    return all_chunks
+    return result
 
 
 if __name__ == "__main__":

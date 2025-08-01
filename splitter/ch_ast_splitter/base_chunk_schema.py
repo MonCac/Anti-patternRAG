@@ -21,7 +21,6 @@ class BaseChunk:
     file_path: str
     chunk_type: ChunkType
     chunk_id: str
-    group_id: int
     level: int
     parent_chunk_id: Optional[str] = None
 
