@@ -11,7 +11,7 @@ from splitter.utils import parse_line_range
 from config.settings import ANTIPATTERN_TYPE
 
 
-def build_chunks(base_dir: Union[str, Path], group_id):
+def build_chunks(base_dir: Union[str, Path], antipattern_type, group_id):
     """
     主函数：从一个 CH 案例文件夹中自动定位 JSON 和 Java 文件，抽取 AST 和分析块
     :param base_dir: 指向某个具体 `{id}` 案例文件夹（包含 before/ 与 .json）
@@ -22,7 +22,7 @@ def build_chunks(base_dir: Union[str, Path], group_id):
 
     # 得到 chunk 的 metadata 内容，如果是构建 query 的chunk，即 group_id < 0，则其他内容都为-1
     if group_id < 0:
-        antipattern_type = ANTIPATTERN_TYPE
+        antipattern_type = antipattern_type
         project_name = -1
         commit_number = -1
         case_id = -1
