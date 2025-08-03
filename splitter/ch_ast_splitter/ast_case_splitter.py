@@ -22,7 +22,7 @@ def build_chunks(base_dir: Union[str, Path], group_id) -> dict[str, Union[str, l
 
     # 得到 chunk 的 metadata 内容，如果是构建 query 的chunk，即 group_id < 0，则其他内容都为-1
     if group_id < 0:
-        antipatter_type = ANTIPATTERN_TYPE
+        antipattern_type = ANTIPATTERN_TYPE
         project_name = -1
         commit_number = -1
         case_id = -1
