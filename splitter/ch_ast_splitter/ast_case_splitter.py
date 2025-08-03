@@ -11,7 +11,7 @@ from splitter.utils import parse_line_range
 from config.settings import ANTIPATTERN_TYPE
 
 
-def build_chunks(base_dir: Union[str, Path], group_id) -> dict[str, Union[str, list, Any]]:
+def build_chunks(base_dir: Union[str, Path], group_id):
     """
     主函数：从一个 CH 案例文件夹中自动定位 JSON 和 Java 文件，抽取 AST 和分析块
     :param base_dir: 指向某个具体 `{id}` 案例文件夹（包含 before/ 与 .json）
@@ -97,7 +97,7 @@ def build_chunks(base_dir: Union[str, Path], group_id) -> dict[str, Union[str, l
         json.dump(result, f, ensure_ascii=False, indent=2)
 
     print(f"分块结果已保存至: {output_path}")
-    return result
+    return result, output_path
 
 
 if __name__ == "__main__":
