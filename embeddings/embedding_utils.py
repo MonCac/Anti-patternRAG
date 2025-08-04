@@ -77,6 +77,20 @@ def get_persist_dir_from_chunk_path(vector_store_dir: str, chunk_json_path: Path
     return str(persist_dir)
 
 
+def get_query_vectorstore_dir(chunks_json_path: str | Path, vectorstore_type: str) -> Path:
+    """
+    在 chunks_json_path 所在目录下，创建 vectorstore/{vectorstore_type}/ 子目录。
+
+    :param chunks_json_path: JSON 文件路径（str 或 Path）
+    :param vectorstore_type: 子目录名（"CODE", "TEXT"）
+    :return: 拼接后的向量数据库目录 Path
+    """
+    chunks_path = Path(chunks_json_path)
+    persist_dir = chunks_path.parent / "vectorstore" / vectorstore_type
+    persist_dir.mkdir(parents=True, exist_ok=True)
+    return persist_dir
+
+
 def add_prompts_to_documents_qwen3(documents: List[Document], prompt_dir: Union[Path, str]) -> List[Document]:
     new_documents = []
 
