@@ -132,3 +132,4 @@ def match_query_to_candidate_chunks(query_dir: str, merged_dir: str, top_k: int 
             score_files.append(score_file)
 
     return score_files
+
