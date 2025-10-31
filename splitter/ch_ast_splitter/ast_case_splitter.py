@@ -21,6 +21,8 @@ def build_chunks(base_dir: Union[str, Path], antipattern_type, group_id):
     """
     base_dir = Path(base_dir)
 
+    print("enter build_chunks")
+
     # 得到 chunk 的 metadata 内容，如果是构建 query 的chunk，即 group_id < 0，则其他内容都为-1
     if group_id < 0:
         antipattern_type = antipattern_type
@@ -91,10 +93,11 @@ def build_chunks(base_dir: Union[str, Path], antipattern_type, group_id):
 
     if group_id < 0:
         chunk_filename = "query_chunk.json"
+        output_dir = Path("query")
     else:
         # 构造输出路径：和 JSON 文件在同一目录，命名为 `{project}_{case_id}_{antipattern}_chunk.json`
         chunk_filename = f"{project_name}_{case_id}_{antipattern_type}_chunk.json"
-    output_dir = Path("tmp/chunks")
+        output_dir = Path("tmp/chunks")
     output_dir.mkdir(parents=True, exist_ok=True)  # 自动创建目录
     output_path = output_dir / chunk_filename
 

@@ -5,7 +5,7 @@ You are a Java architecture analyst. The following class is a subclass involved 
 Please extract the following structured data (JSON format):
 - The overall purpose of the class
 - Key fields and their usage
-- Key methods and what they do
+- Key methods and what they do (only output the top 5 most important methods)
 
 Subclass code:
 {code}

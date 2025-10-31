@@ -9,20 +9,20 @@ from utils.utils import exist_chunk_json, iter_case_paths
 antipattern_type = ANTIPATTERN_TYPE
 
 
-def run_embedding_pipeline(chunks_json_path: Union[str, Path]):
+def run_embedding_pipeline(chunks_json_path: Union[str, Path], query: bool = False):
     chunks_json_path = Path(chunks_json_path)
 
     if not chunks_json_path.exists():
         raise FileNotFoundError(f"Chunk JSON file does not exist: {chunks_json_path}")
 
     print(f" start run     build_text_embedding{chunks_json_path} ")
-    build_text_embedding(chunks_json_path)
+    build_text_embedding(chunks_json_path, query)
     print(f"✅ run over    build_text_embedding{chunks_json_path} ")
     print(f" start run     build_code_embedding{chunks_json_path} ")
-    build_code_embedding(chunks_json_path)
+    path = build_code_embedding(chunks_json_path, query)
     print(f"✅ run over    build_code_embedding{chunks_json_path} ")
 
-    return " EMBEDDING OVER "
+    return path
 
 
 def embedding_all_chunks(base_dir, antipattern_type=None, mode="ast"):
@@ -51,3 +51,4 @@ def embedding_all_chunks(base_dir, antipattern_type=None, mode="ast"):
 if __name__ == "__main__":
     # ✅ 示例调用
     run_embedding_pipeline("/data/sanglei/Anti-patternRAG/data/CH/kafka/commit_1000/6/kafka_6_CH_chunk.json")
+

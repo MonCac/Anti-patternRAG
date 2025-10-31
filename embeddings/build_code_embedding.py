@@ -15,7 +15,7 @@ from embeddings.embedding_utils import (
 from splitter.utils import split_ast_documents
 
 
-def build_code_embedding(chunks_json_path: Union[str, Path]):
+def build_code_embedding(chunks_json_path: Union[str, Path], query: bool = False):
     chunks = load_chunks_from_json(Path(chunks_json_path))
     documents = build_documents(chunks, content_key="ast_subtree")
     embedding_model_raw = init_embedding_model(CODE_EMBEDDING_MODEL)
@@ -35,9 +35,9 @@ def build_code_embedding(chunks_json_path: Union[str, Path]):
             pass
     print(f"documents : {documents}")
     try:
-        store_to_chroma(documents, embedding_model, "CODE")
+        path = store_to_chroma(documents, embedding_model, "CODE", query=query)
     except Exception as e:
         print(f"[Error] build_code_embedding failed: {e}", flush=True)
         raise
     print("[✓] finish build_code_embedding", flush=True)
-    return
+    return path

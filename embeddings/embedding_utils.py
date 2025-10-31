@@ -68,7 +68,8 @@ def init_embedding_model(model_name: str, device: str = "cpu", normalize: bool =
 def store_to_chroma(documents: List[Document], embedding_model,
                     type: str,
                     base_path: str = "vectorstore",
-                    batch_size: int = 2):
+                    batch_size: int = 2,
+                    query: bool = False):
     """
     Stores documents into a native FAISS index with batch embedding and metadata support.
 
@@ -88,17 +89,21 @@ def store_to_chroma(documents: List[Document], embedding_model,
         print("[i] No documents to store.")
         return None, None
 
-    first_meta = documents[0].metadata
-
-    # 构建目标存储路径
-    folder_path = os.path.join(
-        base_path,
-        type,
-        first_meta["antipattern_type"],
-        first_meta["project_name"],
-        first_meta["commit_number"],
-        str(first_meta["id"])
-    )
+    # === 路径逻辑修改区 ===
+    if query:
+        # 固定路径结构: query/vectorstore/CODE 或 TEXT
+        folder_path = os.path.join("query", "vectorstore", type)
+    else:
+        # 原有逻辑: 根据 metadata 创建层级路径
+        first_meta = documents[0].metadata
+        folder_path = os.path.join(
+            base_path,
+            type,
+            first_meta["antipattern_type"],
+            first_meta["project_name"],
+            first_meta["commit_number"],
+            str(first_meta["id"])
+        )
     os.makedirs(folder_path, exist_ok=True)
     index_path = os.path.join(folder_path, "faiss_index.idx")
     metadata_path = os.path.join(folder_path, "metadata.pkl")
@@ -137,7 +142,7 @@ def store_to_chroma(documents: List[Document], embedding_model,
         pickle.dump(metadatas, f)
     print(f"[✓] Metadata saved to {metadata_path}")
 
-    return index, metadatas
+    return os.path.dirname(folder_path)
 
 
 def get_persist_dir_from_chunk_path(vector_store_dir: str, chunk_json_path: Path) -> str:
