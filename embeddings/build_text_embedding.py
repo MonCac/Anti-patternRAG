@@ -3,6 +3,7 @@ from typing import Union
 from transformers import AutoTokenizer
 
 from config.settings import TEXT_EMBEDDING_MODEL
+from embeddings.EmbeddingWrapper import QwenEmbeddingWrapper
 from embeddings.embedding_utils import (
     load_chunks_from_json,
     build_documents,
@@ -16,7 +17,8 @@ from splitter.utils import split_documents_with_instruction_context
 def build_text_embedding(chunks_json_path: Union[str, Path], query: bool = False):
     chunks = load_chunks_from_json(Path(chunks_json_path))
     documents = build_documents(chunks, content_key="llm_description")
-    embedding_model = init_embedding_model(TEXT_EMBEDDING_MODEL)
+    embedding_model_raw = init_embedding_model(TEXT_EMBEDDING_MODEL)
+    embedding_model = QwenEmbeddingWrapper(embedding_model_raw)
     tokenizer = AutoTokenizer.from_pretrained(TEXT_EMBEDDING_MODEL, trust_remote_code=True)
     model_max_len = get_max_token_length(tokenizer)
     match TEXT_EMBEDDING_MODEL:

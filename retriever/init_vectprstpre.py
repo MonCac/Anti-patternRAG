@@ -1,9 +1,13 @@
 import json
+import pickle
 from collections import defaultdict
 from pathlib import Path
 from typing import List, Tuple
 
+import faiss
 from langchain_community.vectorstores import Chroma
+import numpy as np
+
 from config.settings import CODE_EMBEDDING_MODEL, TEXT_EMBEDDING_MODEL
 from embeddings.embedding_utils import init_embedding_model
 from retriever.retriever_utils import collect_all_chroma_paths, save_vectorstore
@@ -58,78 +62,156 @@ def merge_vectorstore_by_chunk_type(source_root: str, target_root: str = None):
             save_vectorstore(target_path, data, embedding_model)
 
 
-def match_query_to_candidate_chunks(query_dir: str, merged_dir: str, top_k: int = 5):
+def load_faiss_index_and_metadata(idx_path: Path):
+    index = faiss.read_index(str(idx_path))
+    meta_path = idx_path.parent / "metadata.pkl"
+    with open(meta_path, "rb") as f:
+        metadata = pickle.load(f)
+    return index, metadata
+
+
+def l2_distance(vec1, vec2):
+    return np.linalg.norm(vec1 - vec2)
+
+
+def cosine_similarity(vec1, vec2):
+    v1 = vec1 / (np.linalg.norm(vec1) + 1e-10)
+    v2 = vec2 / (np.linalg.norm(vec2) + 1e-10)
+    return np.dot(v1, v2)
+
+
+def match_query_to_candidate_chunks_faiss(query_dir: str, merged_dir: str):
     query_dir = Path(query_dir)
     merged_dir = Path(merged_dir)
+    score_files = []
 
-    score_files = []  # ← 新增一个列表来收集所有 score 文件路径
+    all_scores = defaultdict(lambda: {"CODE": defaultdict(list), "TEXT": defaultdict(list)})
+    group_ids = {}
+    folder_paths = {}  # 新增 dict 存储 folder_path
+
     for category in ["CODE", "TEXT"]:
-        embedding_model = init_embedding_model(
-            CODE_EMBEDDING_MODEL if category == "CODE" else TEXT_EMBEDDING_MODEL,
-            default_task="code.passage" if category == "CODE" else None
-        )
-
         query_category_path = query_dir / category
-        if not query_category_path.exists():
-            print(f"[SKIP] No query data for category: {category}")
+        query_idx_path = query_category_path / "faiss_index.idx"
+        query_meta_path = query_category_path / "metadata.pkl"
+        if not query_idx_path.exists() or not query_meta_path.exists():
+            print(f"[SKIP] Missing query index or metadata for category: {category}")
             continue
 
-        # 加载 query 向量库（整个 CODE 或 TEXT）
-        query_db = Chroma(
-            persist_directory=str(query_category_path),
-            embedding_function=embedding_model
-        )
-        query_data = query_db.get()
-        query_embeddings = query_data.get("embeddings", [])
-        query_metadatas = query_data.get("metadatas", [])
+        query_index, query_metadata = load_faiss_index_and_metadata(query_idx_path)
 
-        if not query_embeddings:
-            print(f"[WARN] No embeddings found in query for {category}")
+        chunk_type_to_query_idxs = defaultdict(list)
+        for i, meta in enumerate(query_metadata):
+            ct = meta.get("chunk_type")
+            if not ct:
+                print(f"[WARN] query metadata idx={i} missing chunk_type, skip")
+                continue
+            chunk_type_to_query_idxs[ct].append(i)
+
+        candidate_base_path = merged_dir / category
+        if not candidate_base_path.exists():
+            print(f"[WARN] Candidate base path missing for category: {category}")
             continue
 
-        # 为该 category 准备存储目录
-        output_score_dir = query_category_path / "match_scores"
-        output_score_dir.mkdir(parents=True, exist_ok=True)
+        candidate_idx_files = list(candidate_base_path.rglob("faiss_index.idx"))
+        print(f"[INFO] Found {len(candidate_idx_files)} candidate idx files for category {category}")
 
-        # 拆分 query embedding 按 chunk_type 分组
-        chunktype_to_queries = defaultdict(list)
-        for idx, (emb, meta) in enumerate(zip(query_embeddings, query_metadatas)):
-            chunk_type = meta.get("chunk_type")
-            if not chunk_type:
-                print(f"[WARN] Missing chunk_type for query {idx}, skipping.")
-                continue
-            chunktype_to_queries[chunk_type].append((idx, emb))
+        for candidate_idx_path in candidate_idx_files:
+            candidate_dir = candidate_idx_path.parent
+            candidate_meta_path = candidate_dir / "metadata.pkl"
 
-        # 对每个 chunk_type 的 query 去 candidate 检索
-        for chunk_type, queries in chunktype_to_queries.items():
-            candidate_path = merged_dir / category / chunk_type
-            if not candidate_path.exists():
-                print(f"[WARN] Missing candidate DB for chunk_type: {chunk_type}")
-                continue
+            candidate_index, candidate_metadata = load_faiss_index_and_metadata(candidate_idx_path)
 
-            candidate_db = Chroma(
-                persist_directory=str(candidate_path),
-                embedding_function=embedding_model
-            )
+            chunk_type_to_candidate_idxs = defaultdict(list)
+            for i, meta in enumerate(candidate_metadata):
+                ct = meta.get("chunk_type")
+                if not ct:
+                    print(f"[WARN] candidate metadata idx={i} missing chunk_type, skip")
+                    continue
+                chunk_type_to_candidate_idxs[ct].append(i)
 
-            print(f"\n[MATCH] Category={category}, ChunkType={chunk_type}, Queries={len(queries)}")
+            try:
+                relative_candidate_path = candidate_dir.relative_to(candidate_base_path)
+            except Exception as e:
+                print(f"[ERROR] candidate_dir.relative_to failed: {candidate_dir} with {e}")
+                relative_candidate_path = candidate_dir.name  # 兜底
 
-            match_scores = {}  # {query_id: [ {group_id, score}, ... ] }
+            rel_path_str = str(relative_candidate_path)
 
-            for idx, embedding in queries:
-                matches = candidate_db.similarity_search_by_vector_with_relevance_scores(embedding, k=top_k)
-                match_scores[f"query_{idx}"] = [
-                    {"group_id": doc.metadata.get("group_id", ""), "score": 1 - distance}
-                    for doc, distance in matches
-                ]
+            # 取 group_id（同一个文件相同）
+            if rel_path_str not in group_ids:
+                if candidate_metadata and "group_id" in candidate_metadata[0]:
+                    group_ids[rel_path_str] = candidate_metadata[0]["group_id"]
+                else:
+                    group_ids[rel_path_str] = None
 
-            # 保存 match 结果到文件
-            score_file = output_score_dir / f"{chunk_type}.json"
-            with open(score_file, "w", encoding="utf-8") as f:
-                json.dump(match_scores, f, indent=2, ensure_ascii=False)
+            # 取 folder_path
+            if rel_path_str not in folder_paths and candidate_metadata:
+                meta0 = candidate_metadata[0]
+                # 这几个字段你说的，安全取
+                antipattern_type = meta0.get("antipattern_type", "")
+                project_name = meta0.get("project_name", "")
+                commit_number = meta0.get("commit_number", "")
+                id_ = meta0.get("id", "")
+                folder_path = Path("data") / antipattern_type / project_name / commit_number / id_
+                folder_paths[rel_path_str] = str(folder_path).replace("\\", "/")  # 兼容windows路径
 
-            print(f"[SAVE] Match scores written to: {score_file}")
-            score_files.append(score_file)
+            print(
+                f"\n[MATCH] Category={category}, CandidateDir={candidate_dir}, QueryVectors={query_index.ntotal}")
 
-    return score_files
+            all_chunk_types = set(chunk_type_to_query_idxs.keys()) & set(chunk_type_to_candidate_idxs.keys())
 
+            for ct in all_chunk_types:
+                query_idxs = chunk_type_to_query_idxs[ct]
+                candidate_idxs = chunk_type_to_candidate_idxs[ct]
+
+                if len(query_idxs) != len(candidate_idxs):
+                    print(
+                        f"[WARN] chunk_type {ct} query idxs({len(query_idxs)}) != candidate idxs({len(candidate_idxs)})")
+
+                for qi, ci in zip(query_idxs, candidate_idxs):
+                    query_vec = query_index.reconstruct(qi)
+                    candidate_vec = candidate_index.reconstruct(ci)
+
+                    if category == "TEXT":
+                        sim = cosine_similarity(query_vec, candidate_vec)
+                        score = (sim + 1) / 2
+                    else:
+                        dist = l2_distance(query_vec, candidate_vec)
+                        score = 1 / (1 + dist)
+
+                    score = float(score)
+
+                    candidate_meta = candidate_metadata[ci]
+                    all_scores[rel_path_str][category][f"query_{qi}"].append({
+                        "chunk_type": ct,
+                        "score": score
+                    })
+
+    merged_scores_dir = query_dir / "merged_match_scores"
+    merged_scores_dir.mkdir(parents=True, exist_ok=True)
+
+    for rel_path_str, category_scores in all_scores.items():
+        group_id = group_ids.get(rel_path_str)
+        folder_path = folder_paths.get(rel_path_str, "")
+
+        combined_results = {
+            "group_id": group_id,
+            "folder_path": folder_path,  # 新加字段
+            "CODE": {},
+            "TEXT": {}
+        }
+
+        for cat in ["CODE", "TEXT"]:
+            cat_scores = category_scores.get(cat, {})
+            for qk, matches in cat_scores.items():
+                combined_results[cat][qk] = matches
+
+        output_file = merged_scores_dir / f"{rel_path_str.replace('/', '_')}.json"
+
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(combined_results, f, indent=2, ensure_ascii=False)
+
+        print(f"[SAVE] Combined match scores saved to: {output_file}")
+        score_files.append(output_file)
+
+    return merged_scores_dir

@@ -2,7 +2,7 @@ import json
 import uuid
 from collections import defaultdict
 from pathlib import Path
-from typing import Union, List
+from typing import Union, List, Tuple, Dict, Any
 
 from langchain_community.vectorstores import Chroma
 
@@ -52,26 +52,111 @@ def add_embeddings(db, docs, embeddings, metadatas):
     )
 
 
-def aggregate_topk_from_score_files_with_weights(score_files: List[Path], weight_file: Path, top_k: int = 5):
+def aggregate_topk_from_merged_match_scores(merged_scores_dir: Path, weight_file: Path, top_k: int = 5) -> List[Tuple[str, float, str]]:
     scores_by_group = defaultdict(float)
+    group_to_path = {}
 
-    # 加载权重
+    # 加载chunk_type权重
     with open(weight_file, "r", encoding="utf-8") as f:
         chunk_weights = json.load(f)
 
-    for score_file in score_files:
-        chunk_type = score_file.stem  # eg: "parent_method" from parent_method.json
-        weight = chunk_weights.get(chunk_type, 0.1)  # 默认为0.1，避免缺失权重崩溃
+    merged_scores_dir = Path(merged_scores_dir)
+    json_files = list(merged_scores_dir.glob("*.json"))
 
+    for json_file in json_files:
         try:
-            with open(score_file, "r", encoding="utf-8") as f:
-                chunk_scores = json.load(f)
+            with open(json_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
         except Exception as e:
-            print(f"[ERROR] Failed to load {score_file}: {e}")
+            print(f"[ERROR] Failed to load {json_file}: {e}")
             continue
 
-        for group_id, score in chunk_scores.items():
-            scores_by_group[group_id] += score * weight
+        group_id = data.get("group_id")
+        folder_path = data.get("folder_path", "")
 
+        if group_id is None:
+            print(f"[WARN] No group_id in {json_file}, skip")
+            continue
+
+        # 记录 group_id -> folder_path，优先第一个出现的路径
+        if group_id not in group_to_path and folder_path:
+            group_to_path[group_id] = folder_path
+
+        # CODE 和 TEXT 两部分都遍历
+        for category in ["CODE", "TEXT"]:
+            category_scores = data.get(category, {})
+            for query_id, matches in category_scores.items():
+                for match in matches:
+                    chunk_type = match.get("chunk_type")
+                    score = match.get("score", 0)
+                    weight = chunk_weights.get(chunk_type, 0.1)  # 默认0.1
+
+                    scores_by_group[group_id] += score * weight
+
+    # 按总分排序，降序
     sorted_scores = sorted(scores_by_group.items(), key=lambda x: x[1], reverse=True)
-    return sorted_scores[:top_k]
+
+    # 返回 (group_id, score, folder_path)
+    results = []
+    for group_id, score in sorted_scores[:top_k]:
+        path = group_to_path.get(group_id, "")
+        results.append((group_id, score, path))
+
+    return results
+
+
+def read_and_save_files_in_paths(
+    results: List[Tuple[str, float, str]],
+    output_dir: Path | str,
+    output_filename: str = "aggregated_results.json"
+) -> Dict[str, Dict[str, Any]]:
+    """
+    遍历每个结果中的path，读取该目录下所有文件内容，
+    并将最终结果保存为一个JSON文件。
+
+    参数:
+      results: List of tuples like (group_id, score, path_str)
+      output_dir: Path to directory where the JSON file will be saved
+      output_filename: 输出JSON文件名，默认为"aggregated_results.json"
+
+    返回:
+      dict keyed by group_id, value is dict with keys:
+        - "score": float
+        - "path": str
+        - "files": dict, key=relative filepath (str), value=file content (str)
+    """
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    data = {}
+
+    for group_id, score, path_str in results:
+        base_path = Path(path_str)
+        if not base_path.exists() or not base_path.is_dir():
+            print(f"[WARN] Path does not exist or is not a directory: {path_str}")
+            continue
+
+        files_content = {}
+
+        for file_path in base_path.rglob("*"):
+            if file_path.is_file():
+                try:
+                    rel_path = file_path.relative_to(base_path).as_posix()
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                    files_content[rel_path] = content
+                except Exception as e:
+                    print(f"[ERROR] Failed to read file {file_path}: {e}")
+
+        data[group_id] = {
+            "score": score,
+            "path": path_str,
+            "files": files_content
+        }
+
+    output_file = output_dir / output_filename
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+    print(f"[INFO] Aggregated results saved to {output_file}")
+    return data

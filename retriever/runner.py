@@ -1,7 +1,7 @@
 from config.settings import ANTIPATTERN_TYPE, CHUNK_TYPE_WEIGHT_PATH
-from retriever.init_vectprstpre import match_query_to_candidate_chunks
+from retriever.init_vectprstpre import match_query_to_candidate_chunks_faiss
 from retriever.query_matcher import load_query_chunks, load_query_embeddings
-from retriever.retriever_utils import aggregate_topk_from_score_files_with_weights
+from retriever.retriever_utils import aggregate_topk_from_merged_match_scores, read_and_save_files_in_paths
 
 
 def run_query_matching_pipeline(merge_vectorstore_dir: str, query_data_dir: str, top_k: int = 5):
@@ -24,14 +24,18 @@ def run_query_matching_pipeline(merge_vectorstore_dir: str, query_data_dir: str,
 
     # 2 对其进行 chunk → embedding → 存储为临时 query_vectorstore
     query_embedding_path = load_query_embeddings(query_chunk_path, True)
+    print(f"query_embedding_path: {query_embedding_path}")
 
-    # # 3 遍历其中的每个 chunk_type，加载对应的向量
-    # # 4 与 merged_vectorstore_dir 中的 candidate chunks 做相似度匹配
-    # # 5 聚合相似度结果，按 group_id 打分
-    # # 6 每个 chunk_type 保存一个 match_scores.json 到 query vectorstore 的路径下
-    # score_files = match_query_to_candidate_chunks(query_embedding_path, merge_vectorstore_dir)
+    # 3 遍历其中的每个 chunk_type，加载对应的向量
+    # 4 与 merged_vectorstore_dir 中的 candidate chunks 做相似度匹配
+    # 5 聚合相似度结果，按 group_id 打分
+    # 6 每个 chunk_type 保存一个 match_scores.json 到 query vectorstore 的路径下
+    score_files = match_query_to_candidate_chunks_faiss(query_embedding_path, merge_vectorstore_dir)
 
     # # 7 根据不同的得分策略来得到最相似的 top_k 个结果
-    # result = aggregate_topk_from_score_files_with_weights(score_files, CHUNK_TYPE_WEIGHT_PATH)
-    # print(" top_k 个 结果：(group_id, score): ", result)
+    result = aggregate_topk_from_merged_match_scores(score_files, CHUNK_TYPE_WEIGHT_PATH)
+    print(" top_k 个 结果：(group_id, score): ", result)
+
+    final_result = read_and_save_files_in_paths(result, query_embedding_path)
+    print(f"final_result: {final_result}")
 

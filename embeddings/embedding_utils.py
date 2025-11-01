@@ -7,12 +7,8 @@ from typing import List, Union
 import numpy as np
 from langchain.schema import Document
 import faiss
-from langchain_community.vectorstores import Chroma
-from langchain_community.vectorstores.utils import filter_complex_metadata
 from langchain_huggingface import HuggingFaceEmbeddings
 from tqdm import tqdm
-
-from embeddings import JinaCodeEmbeddingWrapper
 from prompts.prompt_loader import load_prompt
 
 PROMPT_FILE_MAP = {
@@ -118,7 +114,12 @@ def store_to_chroma(documents: List[Document], embedding_model,
         for j, text in enumerate(tqdm(batch_texts,
                                       desc=f"Embedding batch {i // batch_size + 1}/{(len(documents) + batch_size - 1) // batch_size}",
                                       leave=False)):
-            emb = embedding_model.embed_documents([text])[0]  # list[float]
+            if query:
+                # embed_query 对单个字符串，返回 list[float]
+                emb = embedding_model.embed_query(text)
+            else:
+                # embed_documents 要传入列表，返回 List[List[float]]
+                emb = embedding_model.embed_documents([text])[0]
             batch_docs[j].metadata["embedding"] = np.array(emb, dtype=np.float32)
 
     # 构建 FAISS 索引

@@ -4,7 +4,7 @@ from typing import Union
 from transformers import AutoTokenizer
 
 from config.settings import CODE_EMBEDDING_MODEL
-from embeddings.JinaCodeEmbeddingWrapper import JinaCodeEmbeddingWrapper
+from embeddings.EmbeddingWrapper import JinaCodeEmbeddingWrapper
 from embeddings.embedding_utils import (
     load_chunks_from_json,
     build_documents,
