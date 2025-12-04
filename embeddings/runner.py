@@ -34,6 +34,7 @@ def embedding_all_chunks(base_dir, antipattern_type=None, mode="ast"):
         antipattern_type: 可选参数，如果传入，可用于日志或过滤（这里暂不做过滤）。
         mode: 模式参数，传给 pipeline（可扩展）。
     """
+    base_dir = os.path.join(base_dir, antipattern_type)
     json_files = []
     for root, dirs, files in os.walk(base_dir):
         for file in files:

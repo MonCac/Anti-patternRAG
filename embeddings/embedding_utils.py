@@ -63,7 +63,7 @@ def init_embedding_model(model_name: str, device: str = "cpu", normalize: bool =
 
 def store_to_chroma(documents: List[Document], embedding_model,
                     type: str,
-                    base_path: str = "vectorstore",
+                    base_path: str = "tmp/vectorstore",
                     batch_size: int = 2,
                     query: bool = False):
     """

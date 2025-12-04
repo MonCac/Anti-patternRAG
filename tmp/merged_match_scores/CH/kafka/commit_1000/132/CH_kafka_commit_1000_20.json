@@ -1,0 +1,68 @@
+{
+  "group_id": 3,
+  "folder_path": "CH/kafka/commit_1000/20",
+  "CODE": {
+    "query_2": [
+      {
+        "chunk_type": "parent_file_structure",
+        "score": 0.7587196230888367
+      }
+    ],
+    "query_3": [
+      {
+        "chunk_type": "child_method",
+        "score": 1.0
+      }
+    ],
+    "query_0": [
+      {
+        "chunk_type": "parent_method",
+        "score": 0.9589157104492188
+      }
+    ],
+    "query_1": [
+      {
+        "chunk_type": "parent_call_child",
+        "score": 1.0
+      }
+    ],
+    "query_4": [
+      {
+        "chunk_type": "child_file_structure",
+        "score": 0.7614641785621643
+      }
+    ]
+  },
+  "TEXT": {
+    "query_1": [
+      {
+        "chunk_type": "parent_method_summary",
+        "score": 0.9361845254898071
+      }
+    ],
+    "query_0": [
+      {
+        "chunk_type": "parent_file_summary",
+        "score": 0.8984982967376709
+      }
+    ],
+    "query_4": [
+      {
+        "chunk_type": "child_method_summary",
+        "score": 0.8963063955307007
+      }
+    ],
+    "query_2": [
+      {
+        "chunk_type": "invocation_summary",
+        "score": 0.8278144598007202
+      }
+    ],
+    "query_3": [
+      {
+        "chunk_type": "child_file_summary",
+        "score": 0.8196071982383728
+      }
+    ]
+  }
+}

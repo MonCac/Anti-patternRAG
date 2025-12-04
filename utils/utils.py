@@ -113,25 +113,36 @@ def exist_chunk_json(case_path, antipattern_type):
 
 def iter_case_paths(base_dir, antipattern_type):
     """
-    遍历 data/{antipattern_type}/project/commit/case 下的所有 case 路径。
+    遍历 data/{antipattern_type}/{other}/project/commit/case 下的所有 case 路径。
     返回合法的 case_path。
     """
-    base_dir = os.path.join(base_dir, antipattern_type)
-    for project in os.listdir(base_dir):
-        project_path = os.path.join(base_dir, project)
-        if not os.path.isdir(project_path):
+    root = os.path.join(base_dir, antipattern_type)
+
+    # {other}
+    for other in os.listdir(root):
+        other_path = os.path.join(root, other)
+        if not os.path.isdir(other_path):
             continue
 
-        for commit in os.listdir(project_path):
-            commit_path = os.path.join(project_path, commit)
-            if not os.path.isdir(commit_path):
+        # project
+        for project in os.listdir(other_path):
+            project_path = os.path.join(other_path, project)
+            if not os.path.isdir(project_path):
                 continue
 
-            for case_id in os.listdir(commit_path):
-                case_path = os.path.join(commit_path, case_id)
-                if not os.path.isdir(case_path):
+            # commit
+            for commit in os.listdir(project_path):
+                commit_path = os.path.join(project_path, commit)
+                if not os.path.isdir(commit_path):
                     continue
-                yield case_path  # 使用生成器返回每一个 case 路径
+
+                # case
+                for case_id in os.listdir(commit_path):
+                    case_path = os.path.join(commit_path, case_id)
+                    if not os.path.isdir(case_path):
+                        continue
+
+                    yield case_path
 
 
 if __name__ == "__main__":

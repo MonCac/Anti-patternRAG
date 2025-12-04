@@ -160,3 +160,42 @@ def read_and_save_files_in_paths(
 
     print(f"[INFO] Aggregated results saved to {output_file}")
     return data
+
+
+def read_and_aggregated_results_in_paths(
+    results: List[Tuple[str, float, str]],
+    output_dir: Path | str,
+    output_filename: str = "aggregated_results.json"
+) -> Dict[str, Dict[str, Any]]:
+    """
+    遍历每个结果中的path，读取该目录下所有文件内容，
+    并将最终结果保存为一个JSON文件。
+
+    参数:
+      results: List of tuples like (group_id, score, path_str)
+      output_dir: Path to directory where the JSON file will be saved
+      output_filename: 输出JSON文件名，默认为"aggregated_results.json"
+
+    返回:
+      dict keyed by group_id, value is dict with keys:
+        - "score": float
+        - "path": str
+        - "files": dict, key=relative filepath (str), value=file content (str)
+    """
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    data = {}
+
+    for group_id, score, path_str in results:
+        data[group_id] = {
+            "score": score,
+            "path": path_str
+        }
+
+    output_file = output_dir / output_filename
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+    print(f"[INFO] Aggregated results saved to {output_file}")
+    return data

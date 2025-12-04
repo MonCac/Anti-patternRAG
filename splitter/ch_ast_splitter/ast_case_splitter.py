@@ -32,7 +32,7 @@ def build_chunks(base_dir: Union[str, Path], antipattern_type, group_id):
     else:
         # 提取路径倒数四级
         parts = base_dir.parts[-4:]  # 获取倒数4个路径名
-        antipattern_type, project_name, commit_number, case_id = parts
+        _, project_name, commit_number, case_id = parts
 
     # 找到 JSON 文件（一个案例文件夹应该只有一个 *antipattern.json）
     json_files = list(base_dir.glob("*antipattern.json"))
@@ -96,8 +96,8 @@ def build_chunks(base_dir: Union[str, Path], antipattern_type, group_id):
         output_dir = Path("query")
     else:
         # 构造输出路径：和 JSON 文件在同一目录，命名为 `{project}_{case_id}_{antipattern}_chunk.json`
-        chunk_filename = f"{project_name}_{case_id}_{antipattern_type}_chunk.json"
-        output_dir = Path("tmp/chunks")
+        chunk_filename = f"{project_name}_{commit_number}_{case_id}_{antipattern_type}_chunk.json"
+        output_dir = Path(f"tmp/chunks/{antipattern_type}")
     output_dir.mkdir(parents=True, exist_ok=True)  # 自动创建目录
     output_path = output_dir / chunk_filename
 
