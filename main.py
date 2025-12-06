@@ -40,9 +40,9 @@ if __name__ == "__main__":
 
 
     # 进行 MH chunk
-    chunk_all_cases(Path(DATA_DIR), "MH")
+    # chunk_all_cases(Path(DATA_DIR), "MH")
     # 对 chunk 的结果进行 embedding
-    # embedding_all_chunks(Path(CHUNKS_DATA_DIR), "CH")
+    embedding_all_chunks(Path(CHUNKS_DATA_DIR), "CH")
     # 直接对向量数据库的内容按照 CODE 和 TEXT 进行自评分
     # batch_process_vectorstore_query(vectorstore_path)
     # 对query 进行 chunk、embedding，并且进行最后的层级评分排序得到结果。

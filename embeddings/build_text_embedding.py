@@ -14,7 +14,7 @@ from embeddings.embedding_utils import (
 from splitter.utils import split_documents_with_instruction_context
 
 
-def build_text_embedding(chunks_json_path: Union[str, Path], query: bool = False):
+def build_text_embedding(chunks_json_path: Union[str, Path], vectorstore_base_path, query: bool = False):
     chunks = load_chunks_from_json(Path(chunks_json_path))
     documents = build_documents(chunks, content_key="llm_description")
     embedding_model_raw = init_embedding_model(TEXT_EMBEDDING_MODEL)
@@ -30,9 +30,8 @@ def build_text_embedding(chunks_json_path: Union[str, Path], query: bool = False
             documents = valid_documents + exceeding_documents
         case _:
             pass
-
     try:
-        store_to_chroma(documents, embedding_model, "TEXT", query=query)
+        store_to_chroma(documents, embedding_model, "TEXT", vectorstore_base_path=vectorstore_base_path, query=query)
     except Exception as e:
         print(f"[Error] build_text_embedding failed: {e}", flush=True)
         raise

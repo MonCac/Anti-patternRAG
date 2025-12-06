@@ -63,7 +63,7 @@ def init_embedding_model(model_name: str, device: str = "cpu", normalize: bool =
 
 def store_to_chroma(documents: List[Document], embedding_model,
                     type: str,
-                    base_path: str = "tmp/vectorstore",
+                    vectorstore_base_path: str = "tmp/vectorstore",
                     batch_size: int = 2,
                     query: bool = False):
     """
@@ -93,7 +93,7 @@ def store_to_chroma(documents: List[Document], embedding_model,
         # 原有逻辑: 根据 metadata 创建层级路径
         first_meta = documents[0].metadata
         folder_path = os.path.join(
-            base_path,
+            vectorstore_base_path,
             type,
             first_meta["antipattern_type"],
             first_meta["project_name"],
