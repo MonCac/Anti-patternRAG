@@ -1,0 +1,10 @@
+{
+    "average_similarity": 0.9042315681775411,
+    "file_scores": {
+        "S3AFileSystem.java": 0.9432063698768616,
+        "DurationTrackerFactory.java": 0.9021739363670349,
+        "IOStatisticsStore.java": 0.8673143982887268
+    },
+    "matched_files_count": 3,
+    "total_before_files": 3
+}

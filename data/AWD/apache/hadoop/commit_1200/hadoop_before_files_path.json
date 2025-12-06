@@ -1,0 +1,27 @@
+{
+  "1366": [
+    "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/namenode/snapshot/TestSnapshotDiffReport.java",
+    "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/FileSystem.java",
+    "hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DistributedFileSystem.java"
+  ],
+  "1367": [
+    "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/namenode/snapshot/TestSnapRootDescendantDiff.java",
+    "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/FileSystem.java",
+    "hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DistributedFileSystem.java"
+  ],
+  "1951": [
+    "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+    "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/statistics/DurationTrackerFactory.java",
+    "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/statistics/impl/IOStatisticsStore.java"
+  ],
+  "2245": [
+    "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/namenode/snapshot/TestSnapshotDiffReport.java",
+    "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/FSDataOutputStream.java",
+    "hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/client/HdfsDataOutputStream.java"
+  ],
+  "418": [
+    "hadoop-tools/hadoop-aws/src/test/java/org/apache/hadoop/fs/s3a/ITestS3ABlockOutputArray.java",
+    "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/FileSystem.java",
+    "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java"
+  ]
+}

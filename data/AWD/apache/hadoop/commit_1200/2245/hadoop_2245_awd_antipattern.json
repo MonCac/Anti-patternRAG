@@ -1,0 +1,58 @@
+{
+  "clientClass": "org.apache.hadoop.hdfs.server.namenode.snapshot.TestSnapshotDiffReport",
+  "superType": "org.apache.hadoop.fs.FSDataOutputStream",
+  "subType": "org.apache.hadoop.hdfs.client.HdfsDataOutputStream",
+  "files": [
+    "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/namenode/snapshot/TestSnapshotDiffReport.java",
+    "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/FSDataOutputStream.java",
+    "hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/client/HdfsDataOutputStream.java"
+  ],
+  "details": {
+    "clientClass2superType": {
+      "fromFile": "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/namenode/snapshot/TestSnapshotDiffReport.java",
+      "toFile": "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/FSDataOutputStream.java",
+      "snippets": [
+        {
+          "relationType": "Call",
+          "parentMethod": {
+            "entity": "org.apache.hadoop.hdfs.server.namenode.snapshot.TestSnapshotDiffReport.testDiffReportWithOpenFiles",
+            "location": "1054–1163",
+            "code": "/**\n   * Test Snapshot diff report for snapshots with open files captures in them.\n   * Also verify if the diff report remains the same across NameNode restarts.\n   */\n  @Test (timeout = 120000)\n  public void testDiffReportWithOpenFiles() throws Exception {\n    // Construct the directory tree\n    final Path level0A = new Path(\"/level_0_A\");\n    final Path flumeSnapRootDir = level0A;\n    final String flumeFileName = \"flume.log\";\n    final String flumeSnap1Name = \"flume_snap_1\";\n    final String flumeSnap2Name = \"flume_snap_2\";\n\n    // Create files and open a stream\n    final Path flumeFile = new Path(level0A, flumeFileName);\n    createFile(flumeFile);\n    FSDataOutputStream flumeOutputStream = hdfs.append(flumeFile);\n\n    // Create Snapshot S1\n    final Path flumeS1Dir = SnapshotTestHelper.createSnapshot(\n        hdfs, flumeSnapRootDir, flumeSnap1Name);\n    final Path flumeS1Path = new Path(flumeS1Dir, flumeFileName);\n    final long flumeFileLengthAfterS1 = hdfs.getFileStatus(flumeFile).getLen();\n\n    // Verify if Snap S1 file length is same as the the live one\n    Assert.assertEquals(flumeFileLengthAfterS1,\n        hdfs.getFileStatus(flumeS1Path).getLen());\n\n    verifyDiffReport(level0A, flumeSnap1Name, \"\",\n        new DiffReportEntry(DiffType.MODIFY, DFSUtil.string2Bytes(\"\")));\n\n    long flumeFileWrittenDataLength = flumeFileLengthAfterS1;\n    int newWriteLength = (int) (BLOCKSIZE * 1.5);\n    byte[] buf = new byte[newWriteLength];\n    Random random = new Random();\n    random.nextBytes(buf);\n\n    // Write more data to flume file\n    flumeFileWrittenDataLength += writeToStream(flumeOutputStream, buf);\n\n    // Create Snapshot S2\n    final Path flumeS2Dir = SnapshotTestHelper.createSnapshot(\n        hdfs, flumeSnapRootDir, flumeSnap2Name);\n    final Path flumeS2Path = new Path(flumeS2Dir, flumeFileName);\n\n    // Verify live files length is same as all data written till now\n    final long flumeFileLengthAfterS2 = hdfs.getFileStatus(flumeFile).getLen();\n    Assert.assertEquals(flumeFileWrittenDataLength, flumeFileLengthAfterS2);\n\n    // Verify if Snap S2 file length is same as the live one\n    Assert.assertEquals(flumeFileLengthAfterS2,\n        hdfs.getFileStatus(flumeS2Path).getLen());\n\n    verifyDiffReport(level0A, flumeSnap1Name, \"\",\n        new DiffReportEntry(DiffType.MODIFY, DFSUtil.string2Bytes(\"\")),\n        new DiffReportEntry(DiffType.MODIFY,\n            DFSUtil.string2Bytes(flumeFileName)));\n\n    verifyDiffReport(level0A, flumeSnap2Name, \"\");\n\n    verifyDiffReport(level0A, flumeSnap1Name, flumeSnap2Name,\n        new DiffReportEntry(DiffType.MODIFY, DFSUtil.string2Bytes(\"\")),\n        new DiffReportEntry(DiffType.MODIFY,\n            DFSUtil.string2Bytes(flumeFileName)));\n\n    // Write more data to flume file\n    flumeFileWrittenDataLength += writeToStream(flumeOutputStream, buf);\n\n    // Verify old flume snapshots have point-in-time / frozen file lengths\n    // even after the live file have moved forward.\n    Assert.assertEquals(flumeFileLengthAfterS1,\n        hdfs.getFileStatus(flumeS1Path).getLen());\n    Assert.assertEquals(flumeFileLengthAfterS2,\n        hdfs.getFileStatus(flumeS2Path).getLen());\n\n    flumeOutputStream.close();\n\n    // Verify if Snap S2 file length is same as the live one\n    Assert.assertEquals(flumeFileWrittenDataLength,\n        hdfs.getFileStatus(flumeFile).getLen());\n\n    // Verify old flume snapshots have point-in-time / frozen file lengths\n    // even after the live file have moved forward.\n    Assert.assertEquals(flumeFileLengthAfterS1,\n        hdfs.getFileStatus(flumeS1Path).getLen());\n    Assert.assertEquals(flumeFileLengthAfterS2,\n        hdfs.getFileStatus(flumeS2Path).getLen());\n\n    verifyDiffReport(level0A, flumeSnap1Name, \"\",\n        new DiffReportEntry(DiffType.MODIFY, DFSUtil.string2Bytes(\"\")),\n        new DiffReportEntry(DiffType.MODIFY,\n            DFSUtil.string2Bytes(flumeFileName)));\n\n    verifyDiffReport(level0A, flumeSnap2Name, \"\",\n        new DiffReportEntry(DiffType.MODIFY,\n            DFSUtil.string2Bytes(flumeFileName)));\n\n    verifyDiffReport(level0A, flumeSnap1Name, flumeSnap2Name,\n        new DiffReportEntry(DiffType.MODIFY, DFSUtil.string2Bytes(\"\")),\n        new DiffReportEntry(DiffType.MODIFY,\n            DFSUtil.string2Bytes(flumeFileName)));\n\n    restartNameNode();\n\n    verifyDiffReport(level0A, flumeSnap1Name, flumeSnap2Name,\n        new DiffReportEntry(DiffType.MODIFY, DFSUtil.string2Bytes(\"\")),\n        new DiffReportEntry(DiffType.MODIFY,\n            DFSUtil.string2Bytes(flumeFileName)));\n\n  }"
+          },
+          "childMethod": {
+            "entity": "org.apache.hadoop.fs.FSDataOutputStream.close",
+            "location": "101–107",
+            "code": "/**\n   * Close the underlying output stream.\n   */\n  @Override\n  public void close() throws IOException {\n    out.close(); // This invokes PositionCache.close()\n  }"
+          },
+          "invocation": {
+            "location": "1129–1129",
+            "code": "flumeOutputStream.close();"
+          }
+        }
+      ]
+    },
+    "clientClass2subType": {
+      "fromFile": "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/namenode/snapshot/TestSnapshotDiffReport.java",
+      "toFile": "hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/client/HdfsDataOutputStream.java",
+      "snippets": [
+        {
+          "relationType": "Call",
+          "parentMethod": {
+            "entity": "org.apache.hadoop.hdfs.server.namenode.snapshot.TestSnapshotDiffReport.writeToStream",
+            "location": "1037–1043",
+            "code": "private int writeToStream(final FSDataOutputStream outputStream,\n      byte[] buf) throws IOException {\n    outputStream.write(buf);\n    ((HdfsDataOutputStream)outputStream).hsync(\n        EnumSet.of(SyncFlag.UPDATE_LENGTH));\n    return buf.length;\n  }"
+          },
+          "childMethod": {
+            "entity": "org.apache.hadoop.hdfs.client.HdfsDataOutputStream.hsync",
+            "location": "82–97",
+            "code": "/**\n   * Sync buffered data to DataNodes (flush to disk devices).\n   *\n   * @param syncFlags\n   *          Indicate the detailed semantic and actions of the hsync.\n   * @throws IOException\n   * @see FSDataOutputStream#hsync()\n   */\n  public void hsync(EnumSet<SyncFlag> syncFlags) throws IOException {\n    OutputStream wrappedStream = getWrappedStream();\n    if (wrappedStream instanceof CryptoOutputStream) {\n      wrappedStream.flush();\n      wrappedStream = ((CryptoOutputStream) wrappedStream).getWrappedStream();\n    }\n    ((DFSOutputStream) wrappedStream).hsync(syncFlags);\n  }"
+          },
+          "invocation": {
+            "location": "1040–1041",
+            "code": "((HdfsDataOutputStream)outputStream).hsync(\n        EnumSet.of(SyncFlag.UPDATE_LENGTH));"
+          }
+        }
+      ]
+    }
+  }
+}

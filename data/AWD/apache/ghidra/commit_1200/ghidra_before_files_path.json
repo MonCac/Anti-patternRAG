@@ -1,0 +1,7 @@
+{
+  "19": [
+    "Ghidra/Features/DecompilerDependent/src/main/java/ghidra/app/plugin/core/decompiler/taint/TaintState.java",
+    "Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/ClangTokenGroup.java",
+    "Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/ClangFunction.java"
+  ]
+}

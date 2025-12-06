@@ -1,0 +1,58 @@
+{
+  "clientClass": "org.apache.pulsar.broker.service.ReplicatorGlobalNSTest",
+  "superType": "org.apache.pulsar.client.impl.ProducerBase",
+  "subType": "org.apache.pulsar.client.impl.ProducerImpl",
+  "files": [
+    "pulsar-broker/src/test/java/org/apache/pulsar/broker/service/ReplicatorGlobalNSTest.java",
+    "pulsar-client/src/main/java/org/apache/pulsar/client/impl/ProducerBase.java",
+    "pulsar-client/src/main/java/org/apache/pulsar/client/impl/ProducerImpl.java"
+  ],
+  "details": {
+    "clientClass2superType": {
+      "fromFile": "pulsar-broker/src/test/java/org/apache/pulsar/broker/service/ReplicatorGlobalNSTest.java",
+      "toFile": "pulsar-client/src/main/java/org/apache/pulsar/client/impl/ProducerBase.java",
+      "snippets": [
+        {
+          "relationType": "Call",
+          "parentMethod": {
+            "entity": "org.apache.pulsar.broker.service.ReplicatorGlobalNSTest.testForcefullyTopicDeletion",
+            "location": "103–127",
+            "code": "@Test\n    public void testForcefullyTopicDeletion() throws Exception {\n        log.info(\"--- Starting ReplicatorTest::testForcefullyTopicDeletion ---\");\n\n        final String namespace = \"pulsar/removeClusterTest\";\n        admin1.namespaces().createNamespace(namespace);\n        admin1.namespaces().setNamespaceReplicationClusters(namespace, Sets.newHashSet(\"r1\"));\n\n        final String topicName = \"persistent://\" + namespace + \"/topic\";\n\n        @Cleanup\n        PulsarClient client1 = PulsarClient.builder().serviceUrl(url1.toString()).statsInterval(0, TimeUnit.SECONDS)\n                .build();\n\n        ProducerImpl<byte[]> producer1 = (ProducerImpl<byte[]>) client1.newProducer().topic(topicName)\n                .enableBatching(false).messageRoutingMode(MessageRoutingMode.SinglePartition).create();\n        producer1.close();\n\n        admin1.topics().delete(topicName, true);\n\n        MockedPulsarServiceBaseTest\n                .retryStrategically((test) -> !pulsar1.getBrokerService().getTopics().containsKey(topicName), 50, 150);\n\n        Assert.assertFalse(pulsar1.getBrokerService().getTopics().containsKey(topicName));\n    }"
+          },
+          "childMethod": {
+            "entity": "org.apache.pulsar.client.impl.ProducerBase.close",
+            "location": "128–135",
+            "code": "@Override\n    public void close() throws PulsarClientException {\n        try {\n            closeAsync().get();\n        } catch (Exception e) {\n            throw PulsarClientException.unwrap(e);\n        }\n    }"
+          },
+          "invocation": {
+            "location": "119–119",
+            "code": "producer1.close();"
+          }
+        }
+      ]
+    },
+    "clientClass2subType": {
+      "fromFile": "pulsar-broker/src/test/java/org/apache/pulsar/broker/service/ReplicatorGlobalNSTest.java",
+      "toFile": "pulsar-client/src/main/java/org/apache/pulsar/client/impl/ProducerImpl.java",
+      "snippets": [
+        {
+          "relationType": "Call",
+          "parentMethod": {
+            "entity": "org.apache.pulsar.broker.service.ReplicatorGlobalNSTest.testRemoveLocalClusterOnGlobalNamespace",
+            "location": "61–101",
+            "code": "/**\n     * If local cluster is removed from the global namespace then all topics under that namespace should be deleted from\n     * the cluster.\n     *\n     * @throws Exception\n     */\n    @Test\n    public void testRemoveLocalClusterOnGlobalNamespace() throws Exception {\n        log.info(\"--- Starting ReplicatorTest::testRemoveLocalClusterOnGlobalNamespace ---\");\n\n        final String namespace = \"pulsar/global/removeClusterTest\";\n        admin1.namespaces().createNamespace(namespace);\n        admin1.namespaces().setNamespaceReplicationClusters(namespace, Sets.newHashSet(\"r1\", \"r2\", \"r3\"));\n\n        final String topicName = \"persistent://\" + namespace + \"/topic\";\n\n        @Cleanup\n        PulsarClient client1 = PulsarClient.builder().serviceUrl(url1.toString()).statsInterval(0, TimeUnit.SECONDS)\n                .build();\n        @Cleanup\n        PulsarClient client2 = PulsarClient.builder().serviceUrl(url2.toString()).statsInterval(0, TimeUnit.SECONDS)\n                .build();\n\n        ProducerImpl<byte[]> producer1 = (ProducerImpl<byte[]>) client1.newProducer().topic(topicName)\n                .enableBatching(false).messageRoutingMode(MessageRoutingMode.SinglePartition).create();\n        ConsumerImpl<byte[]> consumer1 = (ConsumerImpl<byte[]>) client1.newConsumer().topic(topicName)\n                .subscriptionName(\"sub1\").subscribe();\n        ConsumerImpl<byte[]> consumer2 = (ConsumerImpl<byte[]>) client2.newConsumer().topic(topicName)\n                .subscriptionName(\"sub1\").subscribe();\n\n        admin1.namespaces().setNamespaceReplicationClusters(namespace, Sets.newHashSet(\"r2\", \"r3\"));\n\n        MockedPulsarServiceBaseTest\n                .retryStrategically((test) -> !pulsar1.getBrokerService().getTopics().containsKey(topicName), 50, 150);\n\n        Assert.assertFalse(pulsar1.getBrokerService().getTopics().containsKey(topicName));\n        Assert.assertFalse(producer1.isConnected());\n        Assert.assertFalse(consumer1.isConnected());\n        Assert.assertTrue(consumer2.isConnected());\n\n    }"
+          },
+          "childMethod": {
+            "entity": "org.apache.pulsar.client.impl.ProducerImpl.isConnected",
+            "location": "1110–1113",
+            "code": "@Override\n    public boolean isConnected() {\n        return getCnxIfReady() != null;\n    }"
+          },
+          "invocation": {
+            "location": "97–97",
+            "code": "Assert.assertFalse(producer1.isConnected());"
+          }
+        }
+      ]
+    }
+  }
+}

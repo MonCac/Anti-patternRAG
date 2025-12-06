@@ -1,0 +1,10 @@
+{
+    "average_similarity": 0.8872807224591573,
+    "file_scores": {
+        "ProducerBase.java": 0.8516208529472351,
+        "ProducerImpl.java": 0.920750617980957,
+        "ReplicatorGlobalNSTest.java": 0.8894706964492798
+    },
+    "matched_files_count": 3,
+    "total_before_files": 3
+}

@@ -1,0 +1,10 @@
+{
+    "average_similarity": 0.9126489162445068,
+    "file_scores": {
+        "DistributedFileSystem.java": 0.9018129110336304,
+        "TestSnapRootDescendantDiff.java": 0.9509084224700928,
+        "FileSystem.java": 0.8852254152297974
+    },
+    "matched_files_count": 3,
+    "total_before_files": 3
+}

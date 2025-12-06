@@ -1,0 +1,81 @@
+{
+  "antipattern_type": "AWD",
+  "project_name": "ghidra",
+  "commit_number": "commit_1200",
+  "id": "19",
+  "group_id": 4,
+  "chunks": [
+    {
+      "file_path": "Ghidra/Features/DecompilerDependent/src/main/java/ghidra/app/plugin/core/decompiler/taint/TaintState.java",
+      "chunk_type": "super_parent_method",
+      "chunk_id": "super_parent_method",
+      "level": 3,
+      "parent_chunk_id": null,
+      "ast_subtree": "(method_declaration (modifiers) type: (type_identifier) name: (identifier) parameters: (formal_parameters (formal_parameter type: (type_identifier) name: (identifier))) body: (block (local_variable_declaration type: (type_identifier) declarator: (variable_declarator name: (identifier) value: (cast_expression type: (type_identifier) value: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list))))) (local_variable_declaration type: (generic_type (type_identifier) (type_arguments (type_identifier))) declarator: (variable_declarator name: (identifier) value: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)))) (while_statement condition: (parenthesized_expression (method_invocation object: (identifier) name: (identifier) arguments: (argument_list))) body: (block (local_variable_declaration type: (type_identifier) declarator: (variable_declarator name: (identifier) value: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)))) (if_statement condition: (parenthesized_expression (instanceof_expression left: (identifier) right: (type_identifier) name: (identifier))) consequence: (block (local_variable_declaration type: (type_identifier) declarator: (variable_declarator name: (identifier) value: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)))) (if_statement condition: (parenthesized_expression (binary_expression left: (binary_expression left: (identifier) right: (null_literal)) right: (instanceof_expression left: (identifier) right: (type_identifier)))) consequence: (block (continue_statement))) (return_statement (identifier)))))) (return_statement (null_literal))))"
+    },
+    {
+      "file_path": "Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/ClangTokenGroup.java",
+      "chunk_type": "super_child_child",
+      "chunk_id": "super_child_child",
+      "level": 3,
+      "parent_chunk_id": null,
+      "ast_subtree": "(method_declaration (modifiers (marker_annotation name: (identifier))) type: (generic_type (type_identifier) (type_arguments (type_identifier))) name: (identifier) parameters: (formal_parameters) body: (block (return_statement (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)))))"
+    },
+    {
+      "file_path": "Ghidra/Features/DecompilerDependent/src/main/java/ghidra/app/plugin/core/decompiler/taint/TaintState.java",
+      "chunk_type": "super_invocation",
+      "chunk_id": "super_invocation",
+      "level": 3,
+      "parent_chunk_id": null,
+      "ast_subtree": "(local_variable_declaration type: (generic_type (type_identifier) (type_arguments (type_identifier))) declarator: (variable_declarator name: (identifier) value: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list))))"
+    },
+    {
+      "file_path": "Ghidra/Features/DecompilerDependent/src/main/java/ghidra/app/plugin/core/decompiler/taint/TaintState.java",
+      "chunk_type": "sub_parent_method",
+      "chunk_id": "sub_parent_method",
+      "level": 3,
+      "parent_chunk_id": null,
+      "ast_subtree": "(method_declaration (modifiers) type: (type_identifier) name: (identifier) parameters: (formal_parameters (formal_parameter type: (type_identifier) name: (identifier))) body: (block (local_variable_declaration type: (type_identifier) declarator: (variable_declarator name: (identifier) value: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)))) (local_variable_declaration type: (type_identifier) declarator: (variable_declarator name: (identifier) value: (ternary_expression condition: (parenthesized_expression (binary_expression left: (identifier) right: (null_literal))) consequence: (method_invocation object: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)) name: (identifier) arguments: (argument_list)) alternative: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list))))) (if_statement condition: (parenthesized_expression (binary_expression left: (binary_expression left: (binary_expression left: (identifier) right: (null_literal)) right: (binary_expression left: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)) right: (null_literal))) right: (method_invocation object: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)) name: (identifier) arguments: (argument_list (string_literal (string_fragment)))))) consequence: (block (local_variable_declaration type: (type_identifier) declarator: (variable_declarator name: (identifier) value: (method_invocation object: (method_invocation object: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)) name: (identifier) arguments: (argument_list)) name: (identifier) arguments: (argument_list)))) (local_variable_declaration type: (type_identifier) declarator: (variable_declarator name: (identifier) value: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)))) (local_variable_declaration type: (type_identifier) declarator: (variable_declarator name: (identifier) value: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)))) (local_variable_declaration type: (type_identifier) declarator: (variable_declarator name: (identifier) value: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list (identifier))))) (if_statement condition: (parenthesized_expression (binary_expression left: (identifier) right: (null_literal))) consequence: (block (if_statement condition: (parenthesized_expression (instanceof_expression left: (identifier) right: (type_identifier))) consequence: (block (return_statement (method_invocation object: (identifier) name: (identifier) arguments: (argument_list))))) (return_statement (method_invocation object: (identifier) name: (identifier) arguments: (argument_list))))) (return_statement (method_invocation object: (identifier) name: (identifier) arguments: (argument_list))))) (return_statement (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)))))"
+    },
+    {
+      "file_path": "Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/ClangFunction.java",
+      "chunk_type": "sub_child_method",
+      "chunk_id": "sub_child_method",
+      "level": 3,
+      "parent_chunk_id": null,
+      "ast_subtree": "(class_declaration (modifiers) name: (identifier) superclass: (superclass (type_identifier)) body: (class_body (field_declaration (modifiers) type: (type_identifier) declarator: (variable_declarator name: (identifier))) (constructor_declaration (modifiers) name: (identifier) parameters: (formal_parameters (formal_parameter type: (type_identifier) name: (identifier)) (formal_parameter type: (type_identifier) name: (identifier))) body: (constructor_body (explicit_constructor_invocation constructor: (super) arguments: (argument_list (identifier))) (expression_statement (assignment_expression left: (field_access object: (this) field: (identifier)) right: (identifier))))) (method_declaration (modifiers (marker_annotation name: (identifier))) type: (type_identifier) name: (identifier) parameters: (formal_parameters) body: (block (return_statement (this)))) (block_comment) (method_declaration (modifiers) type: (type_identifier) name: (identifier) parameters: (formal_parameters) body: (block (return_statement (identifier))))))"
+    },
+    {
+      "file_path": "Ghidra/Features/DecompilerDependent/src/main/java/ghidra/app/plugin/core/decompiler/taint/TaintState.java",
+      "chunk_type": "sub_invocation",
+      "chunk_id": "sub_invocation",
+      "level": 3,
+      "parent_chunk_id": null,
+      "ast_subtree": "(ternary_expression condition: (parenthesized_expression (binary_expression left: (identifier) right: (null_literal))) consequence: (method_invocation object: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)) name: (identifier) arguments: (argument_list)) alternative: (method_invocation object: (identifier) name: (identifier) arguments: (argument_list)))"
+    },
+    {
+      "file_path": "Ghidra/Features/DecompilerDependent/src/main/java/ghidra/app/plugin/core/decompiler/taint/TaintState.java",
+      "chunk_type": "client_summary",
+      "chunk_id": "client_summary",
+      "level": 3,
+      "parent_chunk_id": null,
+      "llm_description": "The provided Java code defines an interface called TaintState, which serves as a core component for collecting and managing taint information within the Ghidra decompiler. This interface is designed to be extended by other classes, allowing for various implementations of taint state management. The primary purpose of TaintState is to facilitate the collection of taint data from the decompiler window, store it for query construction and indexing, and provide methods for querying, manipulating, and analyzing this data. It includes functionality for performing source-sink queries, toggling marks, managing taint labels, addressing sets, and handling data import and export. The interface also defines several enums, including MarkType, QueryType, and TaskType, which are used to categorize different types of taint operations and tasks. Additionally, it provides utility methods for tasks such as getting variable names, identifying parent tokens, and determining if a token represents an actual parameter. Overall, the TaintState interface plays a crucial role in enabling advanced taint analysis capabilities within the Ghidra framework."
+    },
+    {
+      "file_path": "Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/ClangTokenGroup.java",
+      "chunk_type": "super_summary",
+      "chunk_id": "super_summary",
+      "level": 3,
+      "parent_chunk_id": null,
+      "llm_description": "The provided Java code defines a class called ClangTokenGroup, which represents a sequence of tokens that form a meaningful group in source code. This class is part of the Ghidra decompiler and plays a crucial role in breaking down source code into smaller, manageable groups. The ClangTokenGroup class has several key responsibilities: it can add additional text to its group, manage its child nodes, keep track of its minimum and maximum addresses, and decode encoded streams. It also provides methods for iterating over its child nodes, flattening the node hierarchy, and setting highlights. Furthermore, the class includes utility functions such as checking if a character is a letter, digit, or underscore, and creating iterators to traverse its tokens in either forward or backward order. The ClangTokenGroup class serves as a fundamental building block for representing and manipulating source code structure within the Ghidra decompiler."
+    },
+    {
+      "file_path": "Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/ClangFunction.java",
+      "chunk_type": "sub_summary",
+      "chunk_id": "sub_summary",
+      "level": 3,
+      "parent_chunk_id": null,
+      "llm_description": "The provided Java code defines a class called ClangFunction, which represents a grouping of source code tokens for an entire function. This class extends another class named ClangTokenGroup and has a key responsibility of encapsulating a HighFunction object. The HighFunction object is used to represent the underlying function in the program model. The ClangFunction class has two main components: a constructor that initializes the object with a parent node and a HighFunction, and several getter methods that allow access to the HighFunction and the ClangFunction itself. The constructor sets up the relationship between the ClangFunction and its parent, as well as the HighFunction it represents. The getter methods provide a way to retrieve the HighFunction associated with the ClangFunction, allowing other parts of the program to interact with it. Overall, the ClangFunction class serves as a bridge between the source code tokens and the program model, facilitating the analysis and processing of functions within the Ghidra decompiler application."
+    }
+  ]
+}

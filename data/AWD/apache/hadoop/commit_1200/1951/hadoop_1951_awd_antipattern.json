@@ -1,0 +1,58 @@
+{
+  "clientClass": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+  "superType": "org.apache.hadoop.fs.statistics.DurationTrackerFactory",
+  "subType": "org.apache.hadoop.fs.statistics.impl.IOStatisticsStore",
+  "files": [
+    "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+    "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/statistics/DurationTrackerFactory.java",
+    "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/statistics/impl/IOStatisticsStore.java"
+  ],
+  "details": {
+    "clientClass2superType": {
+      "fromFile": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+      "toFile": "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/statistics/DurationTrackerFactory.java",
+      "snippets": [
+        {
+          "relationType": "Call",
+          "parentMethod": {
+            "entity": "org.apache.hadoop.fs.s3a.S3AFileSystem.getObjectMetadata",
+            "location": "2639–2688",
+            "code": "/**\n   * Request object metadata; increments counters in the process.\n   * Retry policy: retry untranslated.\n   * Uses changeTracker to detect an unexpected file version (eTag or versionId)\n   * @param key key\n   * @param changeTracker the change tracker to detect unexpected object version\n   * @param changeInvoker the invoker providing the retry policy\n   * @param operation the operation (e.g. \"read\" or \"copy\") triggering this call\n   * @return the metadata\n   * @throws IOException if the retry invocation raises one (it shouldn't).\n   * @throws RemoteFileChangedException if an unexpected version is detected\n   */\n  @Retries.RetryRaw\n  protected ObjectMetadata getObjectMetadata(String key,\n      ChangeTracker changeTracker,\n      Invoker changeInvoker,\n      String operation) throws IOException {\n    ObjectMetadata meta = changeInvoker.retryUntranslated(\"GET \" + key, true,\n        () -> {\n          GetObjectMetadataRequest request\n              = getRequestFactory().newGetObjectMetadataRequest(key);\n          incrementStatistic(OBJECT_METADATA_REQUESTS);\n          DurationTracker duration = getDurationTrackerFactory()\n              .trackDuration(ACTION_HTTP_HEAD_REQUEST.getSymbol());\n          try {\n            LOG.debug(\"HEAD {} with change tracker {}\", key, changeTracker);\n            if (changeTracker != null) {\n              changeTracker.maybeApplyConstraint(request);\n            }\n            ObjectMetadata objectMetadata = s3.getObjectMetadata(request);\n            if (changeTracker != null) {\n              changeTracker.processMetadata(objectMetadata, operation);\n            }\n            return objectMetadata;\n          } catch(AmazonServiceException ase) {\n            if (!isObjectNotFound(ase)) {\n              // file not found is not considered a failure of the call,\n              // so only switch the duration tracker to update failure\n              // metrics on other exception outcomes.\n              duration.failed();\n            }\n            throw ase;\n          } finally {\n            // update the tracker.\n            duration.close();\n          }\n        });\n    incrementReadOperations();\n    return meta;\n  }"
+          },
+          "childMethod": {
+            "entity": "org.apache.hadoop.fs.statistics.DurationTrackerFactory.trackDuration",
+            "location": "52–62",
+            "code": "/**\n   * Initiate a duration tracking operation by creating/returning\n   * an object whose {@code close()} call will\n   * update the statistics.\n   * The expected use is within a try-with-resources clause.\n   * @param key statistic key\n   * @return an object to close after an operation completes.\n   */\n  default DurationTracker trackDuration(String key) {\n    return trackDuration(key, 1);\n  }"
+          },
+          "invocation": {
+            "location": "2661–2662",
+            "code": "DurationTracker duration = getDurationTrackerFactory()\n              .trackDuration(ACTION_HTTP_HEAD_REQUEST.getSymbol());"
+          }
+        }
+      ]
+    },
+    "clientClass2subType": {
+      "fromFile": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+      "toFile": "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/statistics/impl/IOStatisticsStore.java",
+      "snippets": [
+        {
+          "relationType": "Call",
+          "parentMethod": {
+            "entity": "org.apache.hadoop.fs.s3a.S3AFileSystem.setCSEGauge",
+            "location": "686–700",
+            "code": "/**\n   * Set the client side encryption gauge to 0 or 1, indicating if CSE is\n   * enabled through the gauge or not.\n   */\n  private void setCSEGauge() {\n    IOStatisticsStore ioStatisticsStore =\n        (IOStatisticsStore) getIOStatistics();\n    if (isCSEEnabled) {\n      ioStatisticsStore\n          .setGauge(CLIENT_SIDE_ENCRYPTION_ENABLED.getSymbol(), 1L);\n    } else {\n      ioStatisticsStore\n          .setGauge(CLIENT_SIDE_ENCRYPTION_ENABLED.getSymbol(), 0L);\n    }\n  }"
+          },
+          "childMethod": {
+            "entity": "org.apache.hadoop.fs.statistics.impl.IOStatisticsStore.setGauge",
+            "location": "68–75",
+            "code": "/**\n   * Set a gauge.\n   *\n   * No-op if the gauge is unknown.\n   * @param key statistics key\n   * @param value value to set\n   */\n  void setGauge(String key, long value);"
+          },
+          "invocation": {
+            "location": "694–695",
+            "code": "ioStatisticsStore\n          .setGauge(CLIENT_SIDE_ENCRYPTION_ENABLED.getSymbol(), 1L);"
+          }
+        }
+      ]
+    }
+  }
+}

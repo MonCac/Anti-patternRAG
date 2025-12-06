@@ -1,0 +1,58 @@
+{
+  "clientClass": "org.apache.hadoop.hdfs.server.namenode.snapshot.TestSnapRootDescendantDiff",
+  "superType": "org.apache.hadoop.fs.FileSystem",
+  "subType": "org.apache.hadoop.hdfs.DistributedFileSystem",
+  "files": [
+    "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/namenode/snapshot/TestSnapRootDescendantDiff.java",
+    "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/FileSystem.java",
+    "hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DistributedFileSystem.java"
+  ],
+  "details": {
+    "clientClass2superType": {
+      "fromFile": "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/namenode/snapshot/TestSnapRootDescendantDiff.java",
+      "toFile": "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/FileSystem.java",
+      "snippets": [
+        {
+          "relationType": "Call",
+          "parentMethod": {
+            "entity": "org.apache.hadoop.hdfs.server.namenode.snapshot.TestSnapRootDescendantDiff.testNonSnapRootDiffReport",
+            "location": "62–78",
+            "code": "@Test\n  public void testNonSnapRootDiffReport() throws Exception {\n    Path subsub1 = new Path(getSnapRootDir(), \"subsub1\");\n    Path subsubsub1 = new Path(subsub1, \"subsubsub1\");\n    hdfs.mkdirs(subsubsub1);\n    modifyAndCreateSnapshot(getSnapRootDir(), new Path[]{getSnapRootDir()});\n    modifyAndCreateSnapshot(subsubsub1, new Path[]{getSnapRootDir()});\n\n    try {\n      hdfs.getSnapshotDiffReport(subsub1, \"s1\", \"s2\");\n      fail(\"Expect exception when getting snapshot diff report: \" + subsub1\n          + \" is not a snapshottable directory.\");\n    } catch (IOException e) {\n      GenericTestUtils.assertExceptionContains(\n          \"Directory is not a snapshottable directory: \" + subsub1, e);\n    }\n  }"
+          },
+          "childMethod": {
+            "entity": "org.apache.hadoop.fs.FileSystem.mkdirs",
+            "location": "2487–2495",
+            "code": "/**\n   * Call {@link #mkdirs(Path, FsPermission)} with default permission.\n   * @param f path\n   * @return true if the directory was created\n   * @throws IOException IO failure\n   */\n  public boolean mkdirs(Path f) throws IOException {\n    return mkdirs(f, FsPermission.getDirDefault());\n  }"
+          },
+          "invocation": {
+            "location": "66–66",
+            "code": "hdfs.mkdirs(subsubsub1);"
+          }
+        }
+      ]
+    },
+    "clientClass2subType": {
+      "fromFile": "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/namenode/snapshot/TestSnapRootDescendantDiff.java",
+      "toFile": "hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DistributedFileSystem.java",
+      "snippets": [
+        {
+          "relationType": "Call",
+          "parentMethod": {
+            "entity": "org.apache.hadoop.hdfs.server.namenode.snapshot.TestSnapRootDescendantDiff.testNonSnapRootDiffReport",
+            "location": "62–78",
+            "code": "@Test\n  public void testNonSnapRootDiffReport() throws Exception {\n    Path subsub1 = new Path(getSnapRootDir(), \"subsub1\");\n    Path subsubsub1 = new Path(subsub1, \"subsubsub1\");\n    hdfs.mkdirs(subsubsub1);\n    modifyAndCreateSnapshot(getSnapRootDir(), new Path[]{getSnapRootDir()});\n    modifyAndCreateSnapshot(subsubsub1, new Path[]{getSnapRootDir()});\n\n    try {\n      hdfs.getSnapshotDiffReport(subsub1, \"s1\", \"s2\");\n      fail(\"Expect exception when getting snapshot diff report: \" + subsub1\n          + \" is not a snapshottable directory.\");\n    } catch (IOException e) {\n      GenericTestUtils.assertExceptionContains(\n          \"Directory is not a snapshottable directory: \" + subsub1, e);\n    }\n  }"
+          },
+          "childMethod": {
+            "entity": "org.apache.hadoop.hdfs.DistributedFileSystem.getSnapshotDiffReport",
+            "location": "2445–2478",
+            "code": "/**\n   * Get the difference between two snapshots, or between a snapshot and the\n   * current tree of a directory.\n   *\n   * @see DFSClient#getSnapshotDiffReportListing\n   */\n  public SnapshotDiffReport getSnapshotDiffReport(final Path snapshotDir,\n      final String fromSnapshot, final String toSnapshot) throws IOException {\n    statistics.incrementReadOps(1);\n    storageStatistics.incrementOpCounter(OpType.GET_SNAPSHOT_DIFF);\n    Path absF = fixRelativePart(snapshotDir);\n    return new FileSystemLinkResolver<SnapshotDiffReport>() {\n      @Override\n      public SnapshotDiffReport doCall(final Path p)\n          throws IOException {\n        return getSnapshotDiffReportInternal(getPathName(p), fromSnapshot,\n            toSnapshot);\n      }\n\n      @Override\n      public SnapshotDiffReport next(final FileSystem fs, final Path p)\n          throws IOException {\n        if (fs instanceof DistributedFileSystem) {\n          DistributedFileSystem myDfs = (DistributedFileSystem)fs;\n          myDfs.getSnapshotDiffReport(p, fromSnapshot, toSnapshot);\n        } else {\n          throw new UnsupportedOperationException(\"Cannot perform snapshot\"\n              + \" operations on a symlink to a non-DistributedFileSystem: \"\n              + snapshotDir + \" -> \" + p);\n        }\n        return null;\n      }\n    }.resolve(this, absF);\n  }"
+          },
+          "invocation": {
+            "location": "71–71",
+            "code": "hdfs.getSnapshotDiffReport(subsub1, \"s1\", \"s2\");"
+          }
+        }
+      ]
+    }
+  }
+}

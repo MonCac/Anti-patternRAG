@@ -1,0 +1,10 @@
+{
+    "average_similarity": 0.9265388250350952,
+    "file_scores": {
+        "ClangTokenGroup.java": 0.914202094078064,
+        "ClangFunction.java": 0.9054520130157471,
+        "TaintState.java": 0.9599623680114746
+    },
+    "matched_files_count": 3,
+    "total_before_files": 3
+}

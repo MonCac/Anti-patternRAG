@@ -1,0 +1,10 @@
+{
+    "average_similarity": 0.9047066966692606,
+    "file_scores": {
+        "HdfsDataOutputStream.java": 0.9449599385261536,
+        "TestSnapshotDiffReport.java": 0.8844712972640991,
+        "FSDataOutputStream.java": 0.8846888542175293
+    },
+    "matched_files_count": 3,
+    "total_before_files": 3
+}

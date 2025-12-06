@@ -1,0 +1,14 @@
+{
+    "DistributedFileSystem.java": {
+        "file_path": "/data/sanglei/反模式修复数据集构建/extract_antipatterns_and_repair/AWD/apache/hadoop/commit_1200/1366/static_after/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DistributedFileSystem.java",
+        "function_description": "The provided Java code is for a DistributedFileSystem (DFS) class in Hadoop, which manages file systems across a cluster of computers. It includes methods for various operations like creating files, appending to files, listing open files, retrieving file block locations, and more. The class extends the FileSystem abstract class and provides implementations specific to DFS. Key features include support for erasure coding, storage policies, and multipart uploads. The code uses design patterns such as the builder pattern for constructing HdfsDataOutputStreamBuilder instances, which helps in creating files with specific settings like replication factors or erasure coding policies."
+    },
+    "TestSnapshotDiffReport.java": {
+        "file_path": "/data/sanglei/反模式修复数据集构建/extract_antipatterns_and_repair/AWD/apache/hadoop/commit_1200/1366/static_after/hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/namenode/snapshot/TestSnapshotDiffReport.java",
+        "function_description": "This Java code is a test class for Hadoop Distributed File System (HDFS) snapshot feature. It contains several test methods to verify the correctness of snapshot creation, deletion, and diff report generation. The tests cover various scenarios such as creating snapshots, getting snapshot listings, generating diff reports between snapshots, and testing remote iterators for snapshot diff reports. The code uses HDFS APIs like `createSnapshot`, `deleteSnapshot`, `getSnapshotListing`, `getSnapshotDiffReport`, and `snapshotDiffReportListingRemoteIterator` to interact with the HDFS cluster."
+    },
+    "FileSystem.java": {
+        "file_path": "/data/sanglei/反模式修复数据集构建/extract_antipatterns_and_repair/AWD/apache/hadoop/commit_1200/1366/static_after/hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/FileSystem.java",
+        "function_description": "The provided Java code is for a FileSystem class, which appears to be part of the Apache Hadoop project. It contains various methods for file system operations such as creating files, opening files, and handling file paths. The class also includes builder patterns for constructing FSDataInputStreamBuilder and MultipartUploaderBuilder objects. Additionally, it provides methods for handling statistics and exceptions. The code is well-structured, following standard Java naming conventions and documentation practices. However, without more context about the specific requirements or problems to be solved, it's challenging to provide a more detailed analysis or suggest improvements."
+    }
+}

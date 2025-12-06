@@ -1,0 +1,10 @@
+{
+    "average_similarity": 0.90495898326238,
+    "file_scores": {
+        "DistributedFileSystem.java": 0.9410550594329834,
+        "TestSnapshotDiffReport.java": 0.900951087474823,
+        "FileSystem.java": 0.8728708028793335
+    },
+    "matched_files_count": 3,
+    "total_before_files": 3
+}

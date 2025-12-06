@@ -1,0 +1,58 @@
+{
+  "clientClass": "ghidra.app.plugin.core.decompiler.taint.TaintState",
+  "superType": "ghidra.app.decompiler.ClangTokenGroup",
+  "subType": "ghidra.app.decompiler.ClangFunction",
+  "files": [
+    "Ghidra/Features/DecompilerDependent/src/main/java/ghidra/app/plugin/core/decompiler/taint/TaintState.java",
+    "Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/ClangTokenGroup.java",
+    "Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/ClangFunction.java"
+  ],
+  "details": {
+    "clientClass2superType": {
+      "fromFile": "Ghidra/Features/DecompilerDependent/src/main/java/ghidra/app/plugin/core/decompiler/taint/TaintState.java",
+      "toFile": "Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/ClangTokenGroup.java",
+      "snippets": [
+        {
+          "relationType": "Call",
+          "parentMethod": {
+            "entity": "ghidra.app.plugin.core.decompiler.taint.TaintState.getParentToken",
+            "location": "162–176",
+            "code": "public static ClangVariableToken getParentToken(ClangFieldToken token) {\n\t\tClangTokenGroup group = (ClangTokenGroup) token.Parent();\n\t\tIterator<ClangNode> iterator = group.iterator();\n\t\twhile (iterator.hasNext()) {\n\t\t\tClangNode next = iterator.next();\n\t\t\tif (next instanceof ClangVariableToken vtoken) {\n\t\t\t\tHighVariable highVariable = vtoken.getHighVariable();\n\t\t\t\tif (highVariable == null || highVariable instanceof HighConstant) {\n\t\t\t\t\tcontinue;\n\t\t\t\t}\n\t\t\t\treturn vtoken;\n\t\t\t}\n\t\t}\n\t\treturn null;\n\t}"
+          },
+          "childMethod": {
+            "entity": "ghidra.app.decompiler.ClangTokenGroup.iterator",
+            "location": "189–192",
+            "code": "@Override\n\tpublic Iterator<ClangNode> iterator() {\n\t\treturn tokgroup.iterator();\n\t}"
+          },
+          "invocation": {
+            "location": "164–164",
+            "code": "Iterator<ClangNode> iterator = group.iterator();"
+          }
+        }
+      ]
+    },
+    "clientClass2subType": {
+      "fromFile": "Ghidra/Features/DecompilerDependent/src/main/java/ghidra/app/plugin/core/decompiler/taint/TaintState.java",
+      "toFile": "Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/ClangFunction.java",
+      "snippets": [
+        {
+          "relationType": "Call",
+          "parentMethod": {
+            "entity": "ghidra.app.plugin.core.decompiler.taint.TaintState.hvarName",
+            "location": "142–160",
+            "code": "public static String hvarName(ClangToken token) {\n\t\tHighVariable hv = token.getHighVariable();\n\t\tHighFunction hf =\n\t\t\t(hv == null) ? token.getClangFunction().getHighFunction() : hv.getHighFunction();\n\t\tif (hv == null || hv.getName() == null || hv.getName().equals(\"UNNAMED\")) {\n\t\t\tSymbolTable symbolTable = hf.getFunction().getProgram().getSymbolTable();\n\t\t\tVarnode rep = hv.getRepresentative();\n\t\t\tAddress addr = rep.getAddress();\n\t\t\tSymbol symbol = symbolTable.getPrimarySymbol(addr);\n\t\t\tif (symbol == null) {\n\t\t\t\tif (hv instanceof HighLocal) {\n\t\t\t\t\treturn addr.toString();\n\t\t\t\t}\n\t\t\t\treturn token.getText();\n\t\t\t}\n\t\t\treturn symbol.getName();\n\t\t}\n\t\treturn hv.getName();\n\t}"
+          },
+          "childMethod": {
+            "entity": "ghidra.app.decompiler.ClangFunction.getHighFunction",
+            "location": "36–41",
+            "code": "/**\n\t * @return the HighFunction object represented by this source code\n\t */\n\tpublic HighFunction getHighFunction() {\n\t\treturn hfunc;\n\t}"
+          },
+          "invocation": {
+            "location": "145–145",
+            "code": "(hv == null) ? token.getClangFunction().getHighFunction() : hv.getHighFunction();"
+          }
+        }
+      ]
+    }
+  }
+}

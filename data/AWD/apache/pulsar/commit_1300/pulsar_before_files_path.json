@@ -1,0 +1,17 @@
+{
+  "277": [
+    "pulsar-broker/src/test/java/org/apache/pulsar/broker/service/ReplicatorGlobalNSTest.java",
+    "pulsar-client/src/main/java/org/apache/pulsar/client/impl/ProducerBase.java",
+    "pulsar-client/src/main/java/org/apache/pulsar/client/impl/ProducerImpl.java"
+  ],
+  "294": [
+    "tests/integration/src/test/java/org/apache/pulsar/tests/integration/presto/TestPrestoQueryTieredStorage.java",
+    "tests/integration/src/test/java/org/apache/pulsar/tests/integration/containers/ChaosContainer.java",
+    "tests/integration/src/test/java/org/apache/pulsar/tests/integration/containers/S3Container.java"
+  ],
+  "458": [
+    "pulsar-sql/presto-pulsar/src/test/java/org/apache/pulsar/sql/presto/decoder/protobufnative/TestProtobufNativeDecoder.java",
+    "pulsar-client/src/main/java/org/apache/pulsar/client/impl/schema/AbstractStructSchema.java",
+    "pulsar-client/src/main/java/org/apache/pulsar/client/impl/schema/ProtobufNativeSchema.java"
+  ]
+}

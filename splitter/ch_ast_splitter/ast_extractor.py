@@ -5,7 +5,7 @@ from tree_sitter import Language, Parser
 from typing import Optional
 
 from splitter.ch_ast_splitter.ast_chunk_schema import ASTChunk
-from splitter.ch_ast_splitter.base_chunk_schema import ChunkType
+from splitter.ch_ast_splitter.base_chunk_schema import ChunkType, AWDChunkType
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -45,7 +45,7 @@ def get_node_by_line_range(root_node, start_line: int, end_line: int):
     return min(candidates, key=lambda n: (n.end_point[0] - n.start_point[0]))
 
 
-def extract_ast_chunk(code: str, file_path: str, chunk_type: ChunkType,
+def extract_ast_chunk(code: str, file_path: str, chunk_type,
                       start_line: Optional[int] = None, end_line: Optional[int] = None) -> ASTChunk:
     tree = parser.parse(bytes(code, "utf8"))
     root_node = tree.root_node
@@ -60,7 +60,7 @@ def extract_ast_chunk(code: str, file_path: str, chunk_type: ChunkType,
         chunk_type=chunk_type,
         level=3,
         chunk_id=chunk_type.value,
-        ast_subtree=node.sexp() # 使用 S-expression 结构作为语法表示
+        ast_subtree=node.sexp()  # 使用 S-expression 结构作为语法表示
     )
 
 
@@ -98,4 +98,52 @@ def extract_subclass_chunks(code: str, file_path: str,
     chunks.append(
         extract_ast_chunk(code, file_path, ChunkType.CHILD_FILE_STRUCTURE)
     )
+    return chunks
+
+
+def extract_awd_superclass_chunks(super_code, super_path, client_code, client_path, superType_parent_method_loc,
+                                  superType_child_method_loc, superType_invocation_loc):
+    chunks = []
+    if superType_parent_method_loc:
+        start_line, end_line = superType_parent_method_loc
+        chunks.append(
+            extract_ast_chunk(client_code, client_path, AWDChunkType.SUPER_PARENT_METHOD, start_line, end_line)
+        )
+
+    if superType_child_method_loc:
+        start_line, end_line = superType_child_method_loc
+        chunks.append(
+            extract_ast_chunk(super_code, super_path, AWDChunkType.SUPER_CHILD_METHOD, start_line, end_line)
+        )
+
+    if superType_invocation_loc:
+        start_line, end_line = superType_invocation_loc
+        chunks.append(
+            extract_ast_chunk(client_code, client_path, AWDChunkType.SUPER_INVOCATION, start_line, end_line)
+        )
+
+    return chunks
+
+
+def extract_awd_subclass_chunks(sub_code, sub_path, client_code, client_path, subType_parent_method_loc,
+                                  subType_child_method_loc, subType_invocation_loc):
+    chunks = []
+    if subType_parent_method_loc:
+        start_line, end_line = subType_parent_method_loc
+        chunks.append(
+            extract_ast_chunk(client_code, client_path, AWDChunkType.SUB_PARENT_METHOD, start_line, end_line)
+        )
+
+    if subType_child_method_loc:
+        start_line, end_line = subType_child_method_loc
+        chunks.append(
+            extract_ast_chunk(sub_code, sub_path, AWDChunkType.SUB_CHILD_METHOD, start_line, end_line)
+        )
+
+    if subType_invocation_loc:
+        start_line, end_line = subType_invocation_loc
+        chunks.append(
+            extract_ast_chunk(client_code, client_path, AWDChunkType.SUB_INVOCATION, start_line, end_line)
+        )
+
     return chunks
