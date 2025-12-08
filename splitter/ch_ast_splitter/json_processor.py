@@ -36,7 +36,7 @@ class CaseInfo:
 
 
 def load_case_info(json_path: Union[str, Path]) -> CaseInfo:
-    with open(json_path, 'r') as f:
+    with open(json_path, 'r', encoding='utf-8') as f:
         raw = json.load(f)
 
     super_path = raw["files"][0]

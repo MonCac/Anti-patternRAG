@@ -9,15 +9,15 @@ from utils.utils import exist_chunk_json, iter_case_paths
 antipattern_type = ANTIPATTERN_TYPE
 
 
-def run_embedding_pipeline(chunks_json_path: Union[str, Path], vectorstore_base_path, query: bool = False):
+def run_embedding_pipeline(chunks_json_path: Union[str, Path], vectorstore_base_path, query: bool = False, ablation: bool = False):
     chunks_json_path = Path(chunks_json_path)
 
     if not chunks_json_path.exists():
         raise FileNotFoundError(f"Chunk JSON file does not exist: {chunks_json_path}")
-
-    print(f" start run     build_text_embedding{chunks_json_path} ")
-    build_text_embedding(chunks_json_path, vectorstore_base_path, query)
-    print(f"✅ run over    build_text_embedding{chunks_json_path} ")
+    if not ablation:
+        print(f" start run     build_text_embedding{chunks_json_path} ")
+        build_text_embedding(chunks_json_path, vectorstore_base_path, query)
+        print(f"✅ run over    build_text_embedding{chunks_json_path} ")
     print(f" start run     build_code_embedding{chunks_json_path} ")
     path = build_code_embedding(chunks_json_path, vectorstore_base_path, query)
     print(f"✅ run over    build_code_embedding{chunks_json_path} ")
@@ -25,7 +25,7 @@ def run_embedding_pipeline(chunks_json_path: Union[str, Path], vectorstore_base_
     return path
 
 
-def embedding_all_chunks(base_dir, vectorstore_base_path, antipattern_type=None, mode="ast"):
+def embedding_all_chunks(base_dir, vectorstore_base_path, antipattern_type=None, mode="ast", ablation=False):
     """
     遍历 base_dir 下所有 JSON 文件（包括子目录），并对每个 JSON 文件执行 embedding pipeline。
 
@@ -44,7 +44,7 @@ def embedding_all_chunks(base_dir, vectorstore_base_path, antipattern_type=None,
     print(f"[i] Found {len(json_files)} JSON files in {base_dir}")
 
     for json_path in json_files:
-        run_embedding_pipeline(json_path, vectorstore_base_path)
+        run_embedding_pipeline(json_path, vectorstore_base_path, ablation=ablation)
 
     return "✅ EMBEDDING OVER"
 
