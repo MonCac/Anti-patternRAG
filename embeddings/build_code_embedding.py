@@ -33,7 +33,6 @@ def build_code_embedding(chunks_json_path: Union[str, Path], vectorstore_base_pa
             documents = valid_documents + exceeding_documents
         case _:
             pass
-    print(f"documents : {documents}")
     try:
         path = store_to_chroma(documents, embedding_model, "CODE", vectorstore_base_path=vectorstore_base_path, query=query)
     except Exception as e:

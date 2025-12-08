@@ -231,6 +231,7 @@ def match_merged_chunks_faiss(merged_dir: str, antipattern_type: str):
 
     for category in ["CODE", "TEXT"]:
         category_base_path = merged_dir / category
+        print(f"category_base_path: {category_base_path}")
         if not category_base_path.exists():
             print(f"[WARN] Category base path missing: {category}")
             continue

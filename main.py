@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 from glob import glob
 from pathlib import Path
 
@@ -26,8 +27,12 @@ from splitter.runner import chunk_all_cases
 #         print(result)
 
 
+
+
 if __name__ == "__main__":
-    vectorstore_path = "/Users/moncheri/Downloads/main/重构/反模式修复数据集构建/RefactorRAG/Anti-PatternRAG/tmp/vectorstore"
+    src_root = "/Users/moncheri/Downloads/main/重构/反模式修复数据集构建/RefactorRAG/Anti-PatternRAG/data/AWD"
+    dst_root = "/Users/moncheri/Downloads/main/重构/反模式修复数据集构建/extract_antipatterns_and_repair/final"
+    # vectorstore_path = "/Users/moncheri/Downloads/main/重构/反模式修复数据集构建/RefactorRAG/Anti-PatternRAG/tmp/vectorstore"
     base_dir = "/Users/moncheri/Downloads/main/重构/反模式修复数据集构建/RefactorRAG/Anti-PatternRAG/tmp/merged_match_scores"
     # main()
     # 进行 CH chunk
@@ -45,9 +50,9 @@ if __name__ == "__main__":
     # 进行 MH chunk
     # chunk_all_cases(Path(DATA_DIR), "MH")
     # 对 chunk 的结果进行 embedding
-    # embedding_all_chunks(Path(CHUNKS_DATA_DIR), VECTORSTORE_DATA_DIR, "MH")
+    embedding_all_chunks(Path(CHUNKS_DATA_DIR), VECTORSTORE_DATA_DIR, "MH")
     # 直接对向量数据库的内容按照 CODE 和 TEXT 进行自评分
-    # batch_process_vectorstore_query(vectorstore_path, "MH")
+    batch_process_vectorstore_query(VECTORSTORE_DATA_DIR, "MH")
     # 对query 进行 chunk、embedding，并且进行最后的层级评分排序得到结果。
     # 结果存储在 query/vectorstore/aggregated_result.json
     # run_query_matching_pipeline("/data/sanglei/Anti-patternRAG/vectorstore", "/data/sanglei/Anti-patternRAG/query", 5)
@@ -56,11 +61,11 @@ if __name__ == "__main__":
 
 
     # 进行 AWD chunk
-    chunk_all_cases(Path(DATA_DIR), "AWD")
+    # chunk_all_cases(Path(DATA_DIR), "AWD")
     # 对 chunk 的结果进行 embedding
     # embedding_all_chunks(Path(CHUNKS_DATA_DIR), VECTORSTORE_DATA_DIR, "AWD")
     # 直接对向量数据库的内容按照 CODE 和 TEXT 进行自评分
-    # batch_process_vectorstore_query(vectorstore_path, "MH")
+    # batch_process_vectorstore_query(VECTORSTORE_DATA_DIR, "AWD")
     # 对query 进行 chunk、embedding，并且进行最后的层级评分排序得到结果。
     # 结果存储在 query/vectorstore/aggregated_result.json
     # run_query_matching_pipeline("/data/sanglei/Anti-patternRAG/vectorstore", "/data/sanglei/Anti-patternRAG/query", 5)
