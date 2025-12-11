@@ -102,7 +102,6 @@ def build_ch_chunks(base_dir: Union[str, Path], antipattern_type, group_id):
     return result, output_path
 
 
-
 def build_mh_chunks(base_dir: Union[str, Path], antipattern_type, group_id):
     return
 
