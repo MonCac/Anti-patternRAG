@@ -50,8 +50,14 @@ def build_ch_chunks(base_dir: Union[str, Path], antipattern_type, group_id):
     with open(json_path, 'r', encoding='utf-8') as f:
         raw = json.load(f)
 
-    super_path = raw["files"][0]
-    sub_path = raw["files"][1]
+    code_snippets_raw = raw.get("codeSnippets", [])
+    if not code_snippets_raw:
+        raise ValueError(f"No codeSnippets found in {json_path}")
+
+    first = code_snippets_raw[0]
+
+    super_path = first["fromFile"]
+    sub_path = first["toFile"]
 
     # 解析 2 个 Java 文件路径, 构建 Java 文件的完整路径（from before/ 目录）
     java_base_dir = base_dir / "before"
@@ -124,15 +130,18 @@ def build_awd_chunks(base_dir: Union[str, Path], antipattern_type, group_id):
 
     json_path = json_files[0]
 
-    # 解析 2 个 Java 文件路径, 构建 Java 文件的完整路径（from before/ 目录）
+    # 解析 3 个 Java 文件路径, 构建 Java 文件的完整路径（from before/ 目录）
     java_base_dir = base_dir / "before"
 
     with open(json_path, 'r', encoding='utf-8') as f:
         raw = json.load(f)
 
-    client_path = raw["files"][0]
-    super_path = raw["files"][1]
-    sub_path = raw["files"][2]
+    # 解析 3 个 Java 文件路径,
+    details = raw["details"]
+
+    client_path = details["clientClass2superType"]["fromFile"]
+    super_path = details["clientClass2superType"]["toFile"]
+    sub_path = details["clientClass2subType"]["toFile"]
     client_path = os.path.join(java_base_dir, client_path)
     super_path = os.path.join(java_base_dir, super_path)
     sub_path = os.path.join(java_base_dir, sub_path)
