@@ -50,10 +50,16 @@ def extract_ast_chunk(code: str, file_path: str, chunk_type,
     tree = parser.parse(bytes(code, "utf8"))
     root_node = tree.root_node
 
+    print(f"root_node: {root_node}")
+    print(f"start_line: {start_line}")
+    print(f"end_line: {end_line}")
+
     if start_line and end_line:
         node = get_node_by_line_range(root_node, start_line, end_line)
     else:
         node = root_node
+
+    print(f"node: {node}")
 
     return ASTChunk(
         file_path=file_path,
