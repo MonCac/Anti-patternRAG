@@ -47,7 +47,7 @@ def run_query_matching_pipeline(merge_vectorstore_dir: str, query_data_dir: str,
     print(f"final_result: {final_result}")
 
 
-def batch_process_vectorstore_query(vectorstore_path, antipattern_type="CH", ablation=False):
+def batch_process_vectorstore_query(vectorstore_path, antipattern_type, ablation=False):
     if ablation:
         base_dir = match_merged_chunks_faiss_ablation(vectorstore_path, antipattern_type)
         chunk_type_weight_path = ""

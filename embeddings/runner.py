@@ -34,6 +34,7 @@ def embedding_all_chunks(base_dir, antipattern_type=None, mode="ast", ablation=F
         base_dir: 根目录，递归查找 JSON 文件。
         antipattern_type: 可选参数，如果传入，可用于日志或过滤（这里暂不做过滤）。
         mode: 模式参数，传给 pipeline（可扩展）。
+        :param ablation: 是否消融
     """
     base_dir = os.path.join(base_dir, antipattern_type)
     json_files = []
